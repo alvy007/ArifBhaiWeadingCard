@@ -187,13 +187,23 @@ function LocationsPage() {
   return <section className="screen screen--locations" aria-label="Kabin locations">
     <div className="locations-heading"><span className="small-overline">OUR JOURNEY LEADS TO YOU</span><h2>Come celebrate <em>with us</em></h2><p lang="bn">আপনাদের উপস্থিতি আমাদের আনন্দ পূর্ণ করবে। নিচে দুইটি লোকেশনের দিকনির্দেশনা রয়েছে।</p></div>
     <div className="location-stack">
-      {invitation.locations.map((location, i) => <article className="location-item" key={location.id} style={{ "--venue-index": i } as CSSProperties}>
-        <div className="location-icon"><Icon kind="pin" size={23}/></div>
-        <div className="location-details"><span className="location-count">LOCATION 0{i + 1}</span><h3>{location.label}</h3><p lang="bn">{location.bangla} · {location.note}</p></div>
-        <a className="location-map-link" href={location.mapUrl} target="_blank" rel="noopener noreferrer" aria-label={`Open ${location.label} in Google Maps`} data-action="true"><Icon kind="arrow" size={18}/></a>
-      </article>)}
+      {invitation.locations.map((location, i) => <a
+        className="location-item location-item--interactive"
+        key={location.id}
+        style={{ "--venue-index": i } as CSSProperties}
+        href={location.mapUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`Open ${location.label} location in Google Maps`}
+        data-action="true"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <span className="location-icon"><Icon kind="pin" size={23}/></span>
+        <span className="location-details"><span className="location-count">LOCATION 0{i + 1}</span><span className="location-title">{location.label}</span><span className="location-description" lang="bn">{location.bangla} · {location.note}</span></span>
+        <span className="location-map-link" aria-hidden="true"><Icon kind="arrow" size={18}/></span>
+      </a>)}
     </div>
-    <p className="map-footnote" lang="bn">Google Maps আইকনে চাপ দিয়ে সরাসরি পথনির্দেশনা দেখুন।</p>
+    <p className="map-footnote" lang="bn">যেকোনো লোকেশন কার্ডে চাপ দিয়ে Google Maps-এ পথনির্দেশনা দেখুন।</p>
   </section>;
 }
 
