@@ -11,3 +11,10 @@ dove-wings.mp3
 Both sound files are first-party project assets. If a specific commercial track is desired,
 obtain the appropriate playback and public-web distribution permissions, then replace
 the music asset with the authorized recording.
+
+Authentic peacock call (remote stream): https://upload.wikimedia.org/wikipedia/commons/0/05/Pavo_cristatus_%28call%29.ogg
+Source: Ke4roh, 2009, Pavo cristatus (call).ogg, Wikimedia Commons (public domain).
+Source page: https://commons.wikimedia.org/wiki/File:Pavo_cristatus_(call).ogg
+This remote sound requires network access. It plays occasionally and quietly after a visitor starts the invitation; browsers may block playback.
+Requested wedding song: https://www.youtube.com/watch?v=N9OOJjfTjM8
+The supplied video is available via a visible official YouTube embed (when embeddable). The song is NOT copied, extracted, or redistributed.

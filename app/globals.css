@@ -401,3 +401,246 @@ button:focus-visible, a:focus-visible { outline: 3px solid #c9a76f; outline-offs
 @media(prefers-reduced-motion:reduce) {
   .story-stage .story-scene--arriving, .story-outgoing .story-scene--departing { animation: none !important; }
 }
+
+
+/* ------ Final UX polish: clear peacock lane + lifted content ------ */
+.story-stage::after, .story-outgoing::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 72px;
+  height: clamp(120px, 18dvh, 168px);
+  background: linear-gradient(180deg, rgba(255,250,244,0) 0%, rgba(255,250,244,0.92) 20%, rgba(255,250,244,0.98) 58%, rgba(255,250,244,1) 100%);
+  z-index: 8;
+  pointer-events: none;
+}
+.story-outgoing::after { z-index: 9; }
+.story-scroll { padding-bottom: 0; }
+.screen {
+  justify-content: flex-start;
+  padding-top: 84px;
+  padding-bottom: 196px;
+}
+.screen--hero { padding-top: 78px; }
+.hero-picture {
+  margin-top: 4px;
+  height: min(42dvh, 340px);
+}
+.hero-bottom {
+  margin-top: -10px;
+  padding-bottom: 0;
+  transform: translateY(-10px);
+}
+.hero-bottom h2 { color: #285446; }
+.hero-mini { color: #a98356; }
+.invitation-paper {
+  margin-top: 4px;
+  transform: translateY(-10px);
+  box-shadow: 0 22px 60px rgba(131, 109, 73, .16);
+}
+.locations-heading { margin-bottom: 18px; transform: translateY(-8px); }
+.location-stack { margin-bottom: 8px; transform: translateY(-8px); }
+.map-footnote { transform: translateY(-6px); }
+.closing-content {
+  transform: translateY(-26px);
+  padding-bottom: 14px;
+}
+.closing-actions { margin-top: 18px; }
+.replay-invitation { margin-top: 10px; }
+.peacock-companion { z-index: 30; }
+.peacock-traveler {
+  bottom: clamp(98px, 13dvh, 145px);
+  left: 34%;
+  width: clamp(108px, 27vw, 146px);
+}
+.peacock-wait-scene {
+  bottom: clamp(112px, 16dvh, 166px);
+  width: clamp(150px, 41vw, 198px);
+}
+.peacock-wait-label {
+  margin-top: -6px;
+  padding: 6px 12px;
+  font-size: 11px;
+}
+.pause-indicator {
+  top: 24%;
+  transform: translate(-50%, 0);
+  width: 186px;
+  min-height: 132px;
+}
+.player-bottom {
+  background: linear-gradient(transparent, rgba(255,250,245,0.72) 12%, rgba(255,250,245,0.96) 42%, #fffaf6 100%);
+}
+@media (max-width: 430px) {
+  .story-stage::after, .story-outgoing::after { bottom: 67px; height: 126px; }
+  .screen { padding-top: 82px; padding-bottom: 184px; }
+  .hero-picture { height: min(40dvh, 308px); }
+  .hero-bottom { transform: translateY(-16px); }
+  .hero-bottom h2 { font-size: clamp(38px, 10vw, 46px); }
+  .hero-bottom > p:not(.small-overline) { font-size: 21px; }
+  .invitation-paper { transform: translateY(-16px); padding-bottom: 28px; }
+  .locations-heading, .location-stack, .map-footnote { transform: translateY(-14px); }
+  .closing-content { transform: translateY(-34px); }
+  .closing-content h2 { font-size: clamp(40px, 10.2vw, 50px); }
+  .closing-dua { margin: 14px auto; }
+  .peacock-traveler { bottom: 96px; left: 33%; width: 106px; }
+  .peacock-wait-scene { bottom: 108px; width: 146px; }
+  .player-buttons { gap: 8px; }
+  .player-buttons button { min-width: 92px; }
+}
+@media (max-width: 375px) {
+  .screen { padding-top: 80px; padding-bottom: 178px; }
+  .hero-picture { height: min(38dvh, 286px); }
+  .hero-bottom { transform: translateY(-18px); }
+  .invitation-paper { transform: translateY(-18px); }
+  .peacock-traveler { bottom: 92px; width: 100px; }
+  .peacock-wait-scene { bottom: 104px; width: 138px; }
+  .pause-indicator { top: 22%; width: 176px; min-height: 126px; }
+}
+
+
+/* V6: golden-ratio design rhythm (5, 8, 13, 21, 34) and clean safe-area stage. */
+:root {
+  --gold-quiet: #ab8556;
+  --gold-line: #d9bd91;
+  --space-1: 5px;
+  --space-2: 8px;
+  --space-3: 13px;
+  --space-4: 21px;
+  --space-5: 34px;
+  --story-rail: clamp(126px, 18dvh, 164px);
+  --safe-controls: max(85px, calc(80px + env(safe-area-inset-bottom)));
+}
+.story-stage, .story-outgoing { isolation: isolate; }
+.story-stage::after, .story-outgoing::after {
+  bottom: var(--safe-controls);
+  height: var(--story-rail);
+  background: linear-gradient(180deg, #fffaf300 0%, #fffaf3eb 20%, #fffaf3 57%, #fffaf3 100%);
+  border-top: 1px solid #d7b98635;
+}
+.screen {
+  justify-content: flex-start;
+  min-height: 100%;
+  padding: clamp(70px, 10dvh, 94px) var(--space-4) calc(var(--story-rail) + var(--safe-controls) + 8px);
+  gap: 0;
+}
+.screen--hero { padding-top: clamp(75px, 10dvh, 92px); }
+.hero-picture { flex: none; height: min(41dvh, 330px); max-width: 400px; margin: 0 auto; }
+.hero-bottom { transform: none; margin: -7px auto 0; padding: 0 8px; }
+.hero-bottom h2 { font-size: clamp(37px, 9.6vw, 54px); line-height: 1; margin: var(--space-2) auto; }
+.hero-bottom > p:not(.small-overline) { font-size: clamp(18px, 4.8vw, 25px); margin: var(--space-2) auto; }
+.hero-mini { letter-spacing: .09em; }
+.screen--ceremony, .screen--locations, .screen--closing { padding-top: clamp(68px, 9dvh, 84px); }
+.invitation-paper { max-width: 435px; margin: 0 auto; transform: none; padding: 24px clamp(15px, 4vw, 22px); }
+.invitation-paper h2 { font-size: clamp(39px, 9.7vw, 53px); margin: var(--space-3) 0 var(--space-2); }
+.ceremony-caption { max-width: 30ch; margin-inline: auto; }
+.ceremony-names { font-size: clamp(28px, 7.3vw, 38px); }
+.locations-heading { transform: none; max-width: 38ch; margin: 0 auto var(--space-4); }
+.locations-heading h2 { font-size: clamp(40px, 10vw, 58px); line-height: .99; margin: var(--space-3) 0; }
+.locations-heading > p:last-child { max-width: 32ch; margin: 0 auto; }
+.location-stack { transform: none; width: 100%; margin: 0 auto; gap: var(--space-3); }
+.location-item { border-color: #d9be96; box-shadow: 0 9px 22px #7c694114; }
+.map-footnote { transform: none; margin-top: var(--space-3); }
+.closing-content { transform: none; width: 100%; max-width: 410px; padding: 0 var(--space-2); margin: 0 auto; }
+.closing-content h2 { font-size: clamp(40px, 10.1vw, 56px); margin: var(--space-3) auto; }
+.closing-dua { max-width: 29ch; margin: var(--space-3) auto; line-height: 1.7; }
+.closing-names { font-size: clamp(21px, 5.8vw, 27px); }
+.closing-actions { margin-top: var(--space-3); }
+.replay-invitation { margin-top: var(--space-2); }
+.peacock-companion { z-index: 30; }
+.peacock-traveler { bottom: calc(var(--safe-controls) + 8px); width: clamp(104px, 27vw, 140px); }
+.peacock-wait-scene { bottom: calc(var(--safe-controls) + 5px); width: clamp(142px, 40vw, 190px); }
+.peacock-wait-label { font-size: 11px; padding: 6px var(--space-3); margin: -4px auto 0; }
+.pause-indicator--pet { top: 24%; width: 156px; background: #fffdf8f1; border-color: var(--gold-line); }
+.player-bottom { z-index: 38; background: linear-gradient(#fffaf300, #fffaf4ee 19%, #fffaf6ff 43%); }
+.player-progress { background: linear-gradient(90deg,#9b794c,#d9b379); }
+.player-buttons button { border-color: var(--gold-line); }
+.player-caption { font-variant-numeric: tabular-nums; }
+.youtube-song-panel {
+  position: absolute;
+  z-index: 60;
+  top: calc(env(safe-area-inset-top) + 66px);
+  right: 11px;
+  width: min(268px, calc(100% - 22px));
+  padding: 10px;
+  border: 1px solid var(--gold-line);
+  border-radius: 17px;
+  background: #fffaf6;
+  box-shadow: 0 18px 42px #3a3b2d48;
+  cursor: auto;
+}
+.youtube-song-panel__title { display: flex; justify-content: space-between; align-items: center; padding: 1px 3px 8px; color: var(--gold-quiet); font-size: 10px; font-weight: 700; letter-spacing: .15em; }
+.youtube-song-panel__title button { border: 0; border-radius: 50%; width: 28px; height: 28px; background: #f5e8d4; color: var(--deep); }
+.youtube-song-panel iframe { display: block; border: none; width: 100%; min-height: 200px; border-radius: 9px; background: #ede6dc; }
+.youtube-song-panel > a { display: inline-block; font-size: 11px; color: var(--sage); padding: 9px 3px 2px; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+.requested-song-trigger--active { background: #e5d6b9; border-color: var(--gold-quiet); }
+@media (max-height: 740px) {
+  :root { --story-rail: 119px; --safe-controls: max(81px, calc(79px + env(safe-area-inset-bottom))); }
+  .screen { padding-top: 66px; padding-bottom: calc(var(--story-rail) + var(--safe-controls) + 7px); }
+  .hero-picture { height: min(36dvh, 260px); }
+  .hero-bottom h2 { font-size: clamp(35px, 9vw, 43px); }
+  .screen--ceremony, .screen--locations, .screen--closing { padding-top: 65px; }
+  .invitation-paper { padding-block: 14px; }
+  .invitation-paper h2 { font-size: 37px; }
+  .ceremony-caption { font-size: 15px; }
+  .ceremony-names { font-size: 29px; }
+  .closing-content h2 { font-size: 41px; }
+  .closing-dua { font-size: 12px; }
+  .peacock-traveler { width: 101px; }
+  .peacock-wait-scene { width: 140px; }
+}
+@media (min-width: 620px) { .mobile-experience { max-width: 510px; } }
+@media (prefers-reduced-motion: reduce) {
+  .story-stage::after, .story-outgoing::after { transition: none; }
+}
+
+/* Compact devices: key information remains above the foreground pet lane. */
+@media (max-height: 740px) {
+  .screen--closing .blessing-flower { display: none; }
+  .screen--closing .as-mark { font-size: 57px; margin: 3px auto; }
+  .screen--closing .closing-content h2 { font-size: 35px; line-height: .96; margin: 7px auto; }
+  .screen--closing .closing-dua { margin: 8px auto; font-size: 11px; line-height: 1.55; }
+  .screen--closing .closing-names { font-size: 21px; margin: 5px auto; }
+  .screen--closing .closing-event-date { margin: 4px auto; }
+  .screen--closing .closing-actions { margin-top: 7px; }
+  .screen--closing .closing-actions button { min-height: 36px; padding: 6px 13px; }
+  .screen--closing .replay-invitation { margin-top: 4px; padding: 5px; }
+  .screen--ceremony .opening-bismillah { margin: 2px auto 3px; font-size: 19px; }
+  .screen--ceremony .invitation-paper { padding-top: 14px; padding-bottom: 12px; }
+  .screen--ceremony .invitation-paper h2 { margin: 5px auto; }
+  .screen--ceremony .ceremony-caption { line-height: 1.35; margin: 6px auto; font-size: 13px; }
+  .screen--ceremony .ceremony-names { margin: 7px auto; line-height: 1.03; }
+  .screen--ceremony .ceremony-rule { margin: 4px auto; }
+  .screen--ceremony .time-grid { margin: 5px auto; padding: 5px 0; }
+  .screen--ceremony .date-bangla { margin: 5px auto 0; }
+  .screen--ceremony .date-hijri { margin: 2px auto; font-size: 17px; }
+  .screen--ceremony .hijri-disclaimer { font-size: 8px; margin: 2px auto; }
+  .screen--ceremony .ceremony-bangla { display: none; }
+  .screen--locations .locations-heading h2 { font-size: 38px; }
+  .screen--locations .location-item { padding: 8px 10px; }
+  .screen--locations .location-details h3 { font-size: 25px; }
+}
+/* The waiting bird fans over a smooth, distraction-free vignette. */
+.peacock-companion--waiting::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0;
+  bottom: var(--safe-controls);
+  height: clamp(220px, 34dvh, 300px);
+  background: linear-gradient(to bottom, #fffaf300, #fffaf3f0 30%, #fffaf3 62%);
+  pointer-events: none;
+}
+@media (max-height: 740px) {
+  .screen--ceremony { padding-top: 66px; }
+  .screen--ceremony .invitation-paper { padding-top: 8px; padding-bottom: 8px; }
+  .screen--ceremony .opening-bismillah { margin: 0 auto 2px; font-size: 17px; line-height: 1.2; }
+  .screen--ceremony .invitation-paper h2 { font-size: 34px; margin: 3px auto; }
+  .screen--ceremony .ceremony-caption { font-size: 12px; line-height: 1.24; margin: 4px auto; max-width: 33ch; }
+  .screen--ceremony .ceremony-names { font-size: 25px; margin: 4px auto; line-height: .94; }
+  .screen--ceremony .ceremony-rule { margin: 2px auto; line-height: 1; }
+  .screen--ceremony .time-grid { margin: 3px auto; padding: 3px 0; }
+  .screen--ceremony .date-bangla { margin: 3px auto 0; font-size: 11px; }
+  .screen--ceremony .date-hijri { margin: 0 auto; font-size: 14px; }
+  .screen--ceremony .hijri-disclaimer { margin: 0 auto; font-size: 7px; }
+}

@@ -1,5 +1,5 @@
 /* Small same-origin cache for installable mobile invitation; no external data cached. */
-const CACHE = 'arif-suchana-kabin-v5';
+const CACHE = 'arif-suchana-kabin-v6';
 const ASSETS = ['/', '/arif-suchana.webp', '/white-dove-sprite.webp', '/white-dove-still.webp', '/peacock-walk-sprite.webp', '/peacock-fan-sprite.webp', '/icon-192.png', '/icon-512.png', '/wedding-story-original.mp3', '/dove-wings.mp3'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(async cache => {

@@ -89,7 +89,7 @@ function PeacockCompanion({ paused, visible, reducedMotion }: { paused: boolean;
   if (!visible) return null;
   return <div className={`peacock-companion ${paused ? "peacock-companion--waiting" : ""} ${reducedMotion ? "peacock-companion--still" : ""}`} aria-hidden="true">
     <div className="peacock-traveler"><div className="peacock-bob"><div className="peacock-walk-sprite"/></div></div>
-    {paused && <div className="peacock-wait-scene"><div className="peacock-wait-sprite"/><span className="peacock-wait-label">Your little friend is waiting for you ♡</span></div>}
+    {paused && <div className="peacock-wait-scene"><div className="peacock-wait-sprite"/><span className="peacock-wait-label">Your little friend is waiting ♡</span></div>}
   </div>;
 }
 
@@ -143,7 +143,7 @@ function Cover() {
         <p className="cover-hijri" dir="rtl" lang="ar">{invitation.ceremony.hijriArabic}</p>
         <span className="card-seal"><span>♥</span></span>
         <p className="opening-hint">TAP TO OPEN OUR STORY</p>
-        <p className="opening-audio-hint">♪ Original soft wedding instrumental</p>
+        <p className="opening-audio-hint">♪ Soft music · special song available</p>
       </div>
       <div className="envelope-flap" aria-hidden="true"><span>♥</span></div>
     </div>
@@ -170,7 +170,7 @@ function CeremonyPage() {
       <p className="opening-bismillah" lang="ar" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
       <p className="small-overline">THE NEXT CHAPTER OF OUR STORY</p>
       <h2>You are <em>invited</em></h2>
-      <p className="ceremony-caption">Two hearts, two families, one beautiful new beginning. With grateful hearts, we invite you to be part of our special day.</p>
+      <p className="ceremony-caption">With our families, we invite you to share in our special day.</p>
       <div className="ceremony-names"><strong>Arif Rahman</strong><span>&amp;</span><strong>Suchana Sarker</strong></div>
       <div className="ceremony-rule">✦</div>
       <p className="small-overline">KABIN CEREMONY</p>
@@ -230,6 +230,11 @@ export default function WeddingExperience() {
   const soundOnRef = useRef(true);
   const musicRef = useRef<HTMLAudioElement | null>(null);
   const flutterRef = useRef<HTMLAudioElement | null>(null);
+  const peacockCallRef = useRef<HTMLAudioElement | null>(null);
+  const peacockCallElapsedRef = useRef(0);
+  const youtubeFrameRef = useRef<HTMLIFrameElement | null>(null);
+  const [showYouTubeSong, setShowYouTubeSong] = useState(false);
+  const showYouTubeSongRef = useRef(false);
   const [outgoingPage, setOutgoingPage] = useState<number | null>(null);
 
   const phaseRef = useRef<Phase>("cover");
@@ -242,6 +247,27 @@ export default function WeddingExperience() {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const showHintRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // YouTube's supplied track is offered only in its own visible, official player.
+  // It is never extracted into audio nor played through an obscured iframe.
+  const controlYouTube = useCallback((command: "playVideo" | "pauseVideo") => {
+    youtubeFrameRef.current?.contentWindow?.postMessage(
+      JSON.stringify({ event: "command", func: command, args: [] }), "https://www.youtube.com"
+    );
+  }, []);
+
+  const toggleYouTubeSong = useCallback(() => {
+    setShowYouTubeSong(current => {
+      const next = !current;
+      showYouTubeSongRef.current = next;
+      if (next) {
+        musicRef.current?.pause();
+      } else if (soundOnRef.current && !pausedRef.current && phaseRef.current !== "cover" && phaseRef.current !== "finished") {
+        void musicRef.current?.play().catch(() => {});
+      }
+      return next;
+    });
+  }, []);
+
   const setPhaseNow = useCallback((next: Phase) => {
     phaseRef.current = next;
     setPhase(next);
@@ -249,8 +275,8 @@ export default function WeddingExperience() {
       const wings = flutterRef.current;
       if (wings) { wings.currentTime = 0; void wings.play().catch(() => {}); }
     }
-    if (next === "finished") { flutterRef.current?.pause(); musicRef.current?.pause(); }
-  }, []);
+    if (next === "finished") { flutterRef.current?.pause(); musicRef.current?.pause(); peacockCallRef.current?.pause(); controlYouTube("pauseVideo"); }
+  }, [controlYouTube]);
   const setPageNow = useCallback((next: number) => {
     const safe = Math.min(pageNames.length - 1, Math.max(0, next));
     if (safe !== pageRef.current && phaseRef.current === "story") {
@@ -267,23 +293,32 @@ export default function WeddingExperience() {
   const setPauseNow = useCallback((value: boolean) => {
     pausedRef.current = value;
     setPaused(value);
-    if (value) { musicRef.current?.pause(); flutterRef.current?.pause(); }
-    else if (soundOnRef.current && phaseRef.current !== "cover") {
-      void musicRef.current?.play().catch(() => {});
+    if (value) {
+      musicRef.current?.pause();
+      flutterRef.current?.pause();
+      peacockCallRef.current?.pause();
+      controlYouTube("pauseVideo");
+    } else if (soundOnRef.current && phaseRef.current !== "cover") {
+      if (!showYouTubeSongRef.current) void musicRef.current?.play().catch(() => {});
+      else controlYouTube("playVideo");
       if (phaseRef.current === "doves") void flutterRef.current?.play().catch(() => {});
+      if (phaseRef.current === "story" && peacockCallRef.current && !peacockCallRef.current.ended && peacockCallRef.current.currentTime > 0) {
+        void peacockCallRef.current.play().catch(() => {});
+      }
     }
-  }, []);
+  }, [controlYouTube]);
 
   const toggleSound = useCallback(() => {
     const enabled = !soundOnRef.current;
     soundOnRef.current = enabled;
     setSoundOn(enabled);
-    if (!enabled) { musicRef.current?.pause(); flutterRef.current?.pause(); }
+    if (!enabled) { musicRef.current?.pause(); flutterRef.current?.pause(); peacockCallRef.current?.pause(); controlYouTube("pauseVideo"); }
     else if (!pausedRef.current && phaseRef.current !== "cover" && phaseRef.current !== "finished") {
-      void musicRef.current?.play().catch(() => setHint("Tap the music button again if your browser blocks sound."));
+      if (!showYouTubeSongRef.current) void musicRef.current?.play().catch(() => setHint("Tap the music button again if your browser blocks sound."));
+      else controlYouTube("playVideo");
       if (phaseRef.current === "doves") void flutterRef.current?.play().catch(() => {});
     }
-  }, []);
+  }, [controlYouTube]);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -314,6 +349,15 @@ export default function WeddingExperience() {
           transitionElapsedRef.current += delta;
           if (transitionElapsedRef.current >= SCENE_CROSSFADE_MS) { outgoingPageRef.current = null; setOutgoingPage(null); }
         }
+        if (current === "story") {
+          // Occasional authentic, gentle peacock call, not a continuously repeating alarm.
+          peacockCallElapsedRef.current += delta;
+          if (peacockCallElapsedRef.current >= 28000 && soundOnRef.current) {
+            peacockCallElapsedRef.current = 0;
+            const sound = peacockCallRef.current;
+            if (sound) { sound.volume = 0.17; sound.currentTime = 0; void sound.play().catch(() => {}); }
+          }
+        }
         timeRef.current += delta;
         const duration = current === "story" ? SCREEN_MS[pageRef.current] : STAGE_MS[current];
         const fraction = Math.min(1, timeRef.current / duration);
@@ -322,7 +366,7 @@ export default function WeddingExperience() {
           timeRef.current = 0;
           if (current === "opening") setPhaseNow("butterfly");
           else if (current === "butterfly") setPhaseNow("doves");
-          else if (current === "doves") { setPageNow(0); setPhaseNow("story"); }
+          else if (current === "doves") { peacockCallElapsedRef.current = 16500; setPageNow(0); setPhaseNow("story"); }
           else if (pageRef.current < pageNames.length - 1) setPageNow(pageRef.current + 1);
           else { setPhaseNow("finished"); if (barRef.current) barRef.current.style.transform = "scaleX(1)"; }
         }
@@ -342,7 +386,7 @@ export default function WeddingExperience() {
     timeRef.current = 0;
     setPauseNow(false);
     // A direct visitor gesture unlocks audio on mobile browsers.
-    if (soundOnRef.current) void musicRef.current?.play().catch(() => {
+    if (soundOnRef.current && !showYouTubeSongRef.current) void musicRef.current?.play().catch(() => {
       soundOnRef.current = false; setSoundOn(false);
       setHint("Your browser muted the music. Tap the music icon to enable it.");
     });
@@ -388,6 +432,9 @@ export default function WeddingExperience() {
   const replay = useCallback(() => {
     musicRef.current?.pause();
     flutterRef.current?.pause();
+    peacockCallRef.current?.pause();
+    controlYouTube("pauseVideo");
+    peacockCallElapsedRef.current = 0;
     if (musicRef.current) musicRef.current.currentTime = 0;
     if (flutterRef.current) flutterRef.current.currentTime = 0;
     timeRef.current = 0;
@@ -395,7 +442,7 @@ export default function WeddingExperience() {
     setPageNow(0);
     setPhaseNow("cover");
     setPauseNow(false);
-  }, [setPageNow, setPhaseNow, setPauseNow]);
+  }, [setPageNow, setPhaseNow, setPauseNow, controlYouTube]);
 
   const copy = useCallback(async () => {
     try {
@@ -431,6 +478,7 @@ export default function WeddingExperience() {
   return <main className={`experience-root ${paused ? "experience-root--paused" : ""}`} onClick={onSurfaceClick} tabIndex={-1}>
     <audio ref={musicRef} src="/wedding-story-original.mp3" preload="auto" loop playsInline aria-hidden="true"/>
     <audio ref={flutterRef} src="/dove-wings.mp3" preload="auto" playsInline aria-hidden="true"/>
+    <audio ref={peacockCallRef} src="https://upload.wikimedia.org/wikipedia/commons/0/05/Pavo_cristatus_%28call%29.ogg" preload="none" playsInline aria-hidden="true"/>
     <div className="ambient-blur ambient-blur--one" aria-hidden="true"/><div className="ambient-blur ambient-blur--two" aria-hidden="true"/>
     <div className="mobile-experience" aria-label="Arif and Suchana's animated Kabin invitation">
       {(phase === "cover" || phase === "opening" || phase === "butterfly") && <div className={`cover-stage cover-stage--${phase}`}>
@@ -453,7 +501,10 @@ export default function WeddingExperience() {
       {(phase !== "cover") && <div className="player-top">
         <div className="player-brand"><Monogram small/><span>KABIN CEREMONY</span></div>
         <div className="player-actions">
-          <button type="button" className="player-play sound-control" data-action="true" aria-label={soundOn ? "Mute original wedding music" : "Play original wedding music"} aria-pressed={soundOn} onClick={toggleSound}>
+          <button type="button" className={`player-play requested-song-trigger ${showYouTubeSong ? "requested-song-trigger--active" : ""}`} data-action="true" aria-label={showYouTubeSong ? "Close requested YouTube song player" : "Open the requested YouTube song"} aria-expanded={showYouTubeSong} onClick={toggleYouTubeSong}>
+            <Icon kind="sparkles" size={17}/>
+          </button>
+          <button type="button" className="player-play sound-control" data-action="true" aria-label={soundOn ? "Mute background music" : "Play background music"} aria-pressed={soundOn} onClick={toggleSound}>
             <Icon kind={soundOn ? "volume" : "mute"} size={17}/>
           </button>
           <button type="button" className="player-play" data-action="true" aria-label={paused ? "Resume invitation" : "Pause invitation"} onClick={togglePause} disabled={phase === "finished"}>
@@ -471,6 +522,12 @@ export default function WeddingExperience() {
           <button type="button" data-action="true" onClick={() => page < pageNames.length - 1 ? goToPage(page + 1) : replay()}>{page < pageNames.length - 1 ? "Next" : "Replay"}<Icon kind={page < pageNames.length - 1 ? "arrow" : "restart"} size={16}/></button>
         </div>}
       </div>}
+
+      {showYouTubeSong && <aside className="youtube-song-panel" data-action="true" aria-label="Requested YouTube wedding song player">
+        <div className="youtube-song-panel__title"><span>YOUR CHOSEN SONG</span><button type="button" data-action="true" onClick={toggleYouTubeSong} aria-label="Close YouTube player">✕</button></div>
+        <iframe ref={youtubeFrameRef} title="Requested wedding music from YouTube" src="https://www.youtube.com/embed/N9OOJjfTjM8?playsinline=1&enablejsapi=1&controls=1" allow="autoplay; encrypted-media; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen/>
+        <a href="https://www.youtube.com/watch?v=N9OOJjfTjM8" target="_blank" rel="noopener noreferrer" data-action="true">Watch or listen on YouTube ↗</a>
+      </aside>}
 
       {paused && <div className="pause-indicator pause-indicator--pet" aria-live="polite" aria-label="Invitation paused. Your peacock is waiting. Tap anywhere to resume"><span><Icon kind="play" size={19}/></span><strong>Paused</strong><small>Tap anywhere to continue</small></div>}
       {phase === "finished" && <div className="finished-marker" aria-live="polite"><Icon kind="sparkles" size={15}/> A beautiful beginning, In Sha Allah</div>}
