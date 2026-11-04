@@ -14,7 +14,8 @@ const STAGE_MS: Record<"opening" | "butterfly" | "doves", number> = {
   doves: 3100,
 };
 // Verse screens are intentionally longer so guests can read the Arabic and Bangla.
-const SCREEN_MS = [10000, 21000, 14500, 21000, 17000, 21000, 16000] as const;
+const SCREEN_MS = [11000, 25000, 18000, 25000, 20000, 25000, 20000] as const;
+const SCENE_CROSSFADE_MS = 1300;
 const BIRDS = [
   { id: 0, y: 13, delay: 20, duration: 2250, size: .68, drift: -16, tilt: -8, opacity: .78, blur: .5 },
   { id: 1, y: 66, delay: 230, duration: 2600, size: 1.02, drift: -25, tilt: 8, opacity: .98, blur: 0 },
@@ -53,6 +54,41 @@ function Butterfly() {
       <g className="butterfly-wing butterfly-wing--right"><path d="M67 57C91 9 118 14 123 38C126 60 104 74 68 65Z" fill="url(#wing-pink)" stroke="#b18990" strokeWidth="1.7"/><path d="M68 67C101 50 112 79 98 98C86 104 73 83 68 67Z" fill="#f7d0a1" stroke="#b18990" strokeWidth="1.5"/><path d="M109 37C94 46 81 58 71 61" stroke="#fff7ef" strokeWidth="2.5"/></g>
       <path d="M65 58C58 34 53 31 50 30M65 58C72 34 77 31 80 30" stroke="#5a6250" strokeWidth="2" strokeLinecap="round"/><ellipse cx="65" cy="70" rx="4" ry="20" fill="#6a6152"/>
     </svg>
+  </div>;
+}
+
+// Small decorative butterflies move near the edges to keep verses unobstructed.
+const AMBIENT_BUTTERFLIES = [
+  { x: 6, y: 19, delay: -1.2, duration: 13.1, scale: .65, color: "rose" },
+  { x: 89, y: 33, delay: -7.4, duration: 17.2, scale: .78, color: "gold" },
+  { x: 11, y: 62, delay: -5.3, duration: 15.8, scale: .55, color: "blue" },
+  { x: 91, y: 73, delay: -12.1, duration: 19.5, scale: .67, color: "rose" },
+  { x: 16, y: 86, delay: -9.2, duration: 20.4, scale: .5, color: "gold" },
+  { x: 82, y: 13, delay: -3.8, duration: 14.7, scale: .55, color: "blue" },
+] as const;
+
+function AmbientButterflies() {
+  return <div className="butterfly-garden" aria-hidden="true">
+    {AMBIENT_BUTTERFLIES.map((b, i) => <div className={`ambient-butterfly ambient-butterfly--${b.color}`} key={i} style={{
+      "--x": `${b.x}%`, "--y": `${b.y}%`, "--fly-delay": `${b.delay}s`,
+      "--fly-duration": `${b.duration}s`, "--butterfly-scale": b.scale,
+    } as CSSProperties}>
+      <svg viewBox="0 0 46 39" fill="none">
+        <g className="ambient-butterfly-wing ambient-butterfly-wing--left"><path d="M22 21C12 5 4 7 2 16c-1 8 7 13 20 10Z" fill="currentColor" opacity=".86"/><path d="M22 25C7 17 8 34 16 36c4 1 6-7 6-11Z" fill="currentColor" opacity=".64"/></g>
+        <g className="ambient-butterfly-wing ambient-butterfly-wing--right"><path d="M24 21C34 5 42 7 44 16c1 8-7 13-20 10Z" fill="currentColor" opacity=".86"/><path d="M24 25c15-8 14 9 6 11-4 1-6-7-6-11Z" fill="currentColor" opacity=".64"/></g>
+        <path d="M23 20v15M23 20c-3-6-5-7-7-7M23 20c3-6 5-7 7-7" stroke="#746b5c" strokeWidth="1.6" strokeLinecap="round"/>
+      </svg>
+    </div>)}
+  </div>;
+}
+
+// Persistent companion: it never remounts between story pages. Hiding the walker
+// during a pause retains the exact CSS walk/step phase underneath the fan overlay.
+function PeacockCompanion({ paused, visible, reducedMotion }: { paused: boolean; visible: boolean; reducedMotion: boolean }) {
+  if (!visible) return null;
+  return <div className={`peacock-companion ${paused ? "peacock-companion--waiting" : ""} ${reducedMotion ? "peacock-companion--still" : ""}`} aria-hidden="true">
+    <div className="peacock-traveler"><div className="peacock-bob"><div className="peacock-walk-sprite"/></div></div>
+    {paused && <div className="peacock-wait-scene"><div className="peacock-wait-sprite"/><span className="peacock-wait-label">Your little friend is waiting for you ♡</span></div>}
   </div>;
 }
 
@@ -100,6 +136,8 @@ function Cover() {
         <span className="card-divider">✧ ─── ✧ ─── ✧</span>
         <h1>Kabin <em>Ceremony</em></h1>
         <p className="card-names">Arif Rahman <span>&amp;</span> Suchana Sarker</p>
+        <p className="cover-date">FRIDAY · 6 NOVEMBER 2026</p>
+        <p className="cover-hijri" dir="rtl" lang="ar">{invitation.ceremony.hijriArabic}</p>
         <span className="card-seal"><span>♥</span></span>
         <p className="opening-hint">TAP ANYWHERE TO OPEN</p>
       </div>
@@ -116,7 +154,7 @@ function HeroPage() {
       <p className="small-overline">BY THE GRACE OF ALLAH</p>
       <h2>Our beautiful <em>beginning</em></h2>
       <p>Arif Rahman <span>♥</span> Suchana Sarker</p>
-      <span className="hero-mini">A KABIN CEREMONY INVITATION</span>
+      <span className="hero-mini">FRIDAY · 6 NOVEMBER 2026</span>
     </div>
   </section>;
 }
@@ -149,7 +187,10 @@ function CeremonyPage() {
       <div className="ceremony-names"><strong>Arif Rahman</strong><span>&amp;</span><strong>Suchana Sarker</strong></div>
       <div className="ceremony-rule">✦</div>
       <p className="small-overline">KABIN CEREMONY</p>
-      <div className="time-grid"><div><small>DATE</small><strong>{invitation.ceremony.date ?? "To be announced"}</strong></div><div><small>TIME</small><strong>{invitation.ceremony.time}{invitation.ceremony.timePeriod ? ` ${invitation.ceremony.timePeriod}` : ""}</strong></div></div>
+      <div className="time-grid"><div><small>DATE</small><strong>6 NOVEMBER 2026</strong><span>Friday</span></div><div><small>TIME</small><strong>{invitation.ceremony.time}{invitation.ceremony.timePeriod ? ` ${invitation.ceremony.timePeriod}` : ""}</strong><span>Bangladesh time</span></div></div>
+      <p className="date-bangla" lang="bn">{invitation.ceremony.dateBangla}</p>
+      <p className="date-hijri" lang="ar" dir="rtl">{invitation.ceremony.hijriArabic}</p>
+      <p className="hijri-disclaimer" lang="bn">{invitation.ceremony.hijriNote}</p>
       <p className="ceremony-bangla" lang="bn">আপনাদের ভালোবাসা, উপস্থিতি ও দোয়ায় আমাদের এই বিশেষ দিনটি আরও সুন্দর হয়ে উঠুক।</p>
     </div>
   </section>;
@@ -179,6 +220,7 @@ function ClosingPage({ onShare, onCopy, onReplay, copied }: { onShare: () => voi
       <h2>A new chapter,<br/><em>In Sha Allah.</em></h2>
       <p lang="bn" className="closing-dua">আমাদের নতুন পথচলায় আপনাদের আন্তরিক দোয়া ও ভালোবাসা কামনা করি। আল্লাহ যেন আমাদের দাম্পত্য জীবন রহমত, বরকত ও প্রশান্তিতে পূর্ণ করেন। আমিন।</p>
       <strong className="closing-names">Arif Rahman <span>&amp;</span> Suchana Sarker</strong>
+      <p className="closing-event-date">6 NOVEMBER 2026 · 26 JUMADA AL-AWWAL 1448 AH</p>
       <p className="small-overline">KABIN CEREMONY</p>
       <div className="closing-actions">
         <button type="button" data-action="true" onClick={onShare}><Icon kind="share" size={18}/> Share</button>
@@ -197,8 +239,11 @@ export default function WeddingExperience() {
   const [copied, setCopied] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [hint, setHint] = useState("");
+  const [outgoingPage, setOutgoingPage] = useState<number | null>(null);
 
   const phaseRef = useRef<Phase>("cover");
+  const transitionElapsedRef = useRef(0);
+  const outgoingPageRef = useRef<number | null>(null);
   const pageRef = useRef(0);
   const pausedRef = useRef(false);
   const timeRef = useRef(0);
@@ -209,6 +254,11 @@ export default function WeddingExperience() {
   const setPhaseNow = useCallback((next: Phase) => { phaseRef.current = next; setPhase(next); }, []);
   const setPageNow = useCallback((next: number) => {
     const safe = Math.min(pageNames.length - 1, Math.max(0, next));
+    if (safe !== pageRef.current && phaseRef.current === "story") {
+      outgoingPageRef.current = pageRef.current;
+      setOutgoingPage(pageRef.current);
+      transitionElapsedRef.current = 0;
+    } else { outgoingPageRef.current = null; setOutgoingPage(null); }
     pageRef.current = safe;
     setPage(safe);
     timeRef.current = 0;
@@ -241,6 +291,10 @@ export default function WeddingExperience() {
       last = now;
       const current = phaseRef.current;
       if (!pausedRef.current && current !== "cover" && current !== "finished") {
+        if (outgoingPageRef.current !== null) {
+          transitionElapsedRef.current += delta;
+          if (transitionElapsedRef.current >= SCENE_CROSSFADE_MS) { outgoingPageRef.current = null; setOutgoingPage(null); }
+        }
         timeRef.current += delta;
         const duration = current === "story" ? SCREEN_MS[pageRef.current] : STAGE_MS[current];
         const fraction = Math.min(1, timeRef.current / duration);
@@ -309,6 +363,7 @@ export default function WeddingExperience() {
 
   const replay = useCallback(() => {
     timeRef.current = 0;
+    outgoingPageRef.current = null; setOutgoingPage(null);
     setPageNow(0);
     setPhaseNow("cover");
     setPauseNow(false);
@@ -334,8 +389,8 @@ export default function WeddingExperience() {
   const showStory = phase === "doves" || phase === "story" || phase === "finished";
   const storyIndex = phase === "doves" ? 0 : page;
 
-  function renderScreen() {
-    switch (storyIndex) {
+  function renderScreen(index: number) {
+    switch (index) {
       case 0: return <HeroPage/>;
       case 1: return <VersePage index={0}/>;
       case 2: return <CeremonyPage/>;
@@ -359,11 +414,14 @@ export default function WeddingExperience() {
 
       {showStory && <div className={`story-stage ${phase === "doves" ? "story-stage--hidden" : ""}`}>
         <div className="story-scroll" ref={scrollRef}>
-          <div className="story-scene" key={`${phase === "doves" ? "prelude" : "story"}-${storyIndex}`}>{renderScreen()}</div>
+          <div className="story-scene story-scene--arriving" key={`${phase === "doves" ? "prelude" : "story"}-${storyIndex}`}>{renderScreen(storyIndex)}</div>
         </div>
       </div>}
 
+      {outgoingPage !== null && phase === "story" && <div className="story-outgoing" aria-hidden="true"><div className="story-scene story-scene--departing" key={`out-${outgoingPage}`}>{renderScreen(outgoingPage)}</div></div>}
       {phase === "doves" && !reducedMotion && <Doves/>}
+      <AmbientButterflies/>
+      <PeacockCompanion paused={paused} visible={(phase === "story" || phase === "finished") && !reducedMotion} reducedMotion={reducedMotion}/>
 
       {(phase !== "cover") && <div className="player-top">
         <div className="player-brand"><Monogram small/><span>KABIN CEREMONY</span></div>
@@ -382,7 +440,7 @@ export default function WeddingExperience() {
         </div>}
       </div>}
 
-      {paused && <div className="pause-indicator" aria-live="polite" aria-label="Invitation paused. Tap anywhere to resume"><span><Icon kind="play" size={32}/></span><strong>Paused</strong><small>Tap anywhere to continue</small></div>}
+      {paused && <div className="pause-indicator pause-indicator--pet" aria-live="polite" aria-label="Invitation paused. Your peacock is waiting. Tap anywhere to resume"><span><Icon kind="play" size={19}/></span><strong>Paused</strong><small>Tap anywhere to continue</small></div>}
       {phase === "finished" && <div className="finished-marker" aria-live="polite"><Icon kind="sparkles" size={15}/> Your invitation journey is complete</div>}
       {hint && <div className="message-toast" role="alert" data-action="true">{hint}<button onClick={() => setHint("")}>Close</button></div>}
     </div>

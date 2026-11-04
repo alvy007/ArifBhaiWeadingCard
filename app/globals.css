@@ -266,3 +266,79 @@ button:focus-visible, a:focus-visible { outline: 3px solid #c9a76f; outline-offs
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
 }
+
+
+/* ------ Wedding story v4: butterflies, a living peacock, and scene dissolves ------ */
+.cover-date { font: 700 10px/1.45 var(--body); letter-spacing: .19em; color: #ab865d; margin: 14px 0 1px; }
+.cover-hijri { font: 400 17px/1.4 var(--arabic); color: #496f5b; margin: 5px 0 0; }
+.date-bangla { font: 500 13px/1.55 var(--bn); color: #517563; margin: 8px 0 2px; }
+.date-hijri { font: 400 21px/1.5 var(--arabic); color: #b38e58; margin: 4px 0; }
+.hijri-disclaimer { font: 400 9px/1.45 var(--bn); color: #938575; margin: 4px 0 0; }
+.time-grid > div > span { font: 500 10px var(--display); color: #99896e; }
+.closing-event-date { font: 600 9px/1.6 var(--body); letter-spacing: .09em; color: #a17e50; margin: 10px 0 4px; }
+
+.butterfly-garden { position: absolute; inset: 0; z-index: 16; pointer-events: none; overflow: hidden; }
+.ambient-butterfly { position: absolute; left: var(--x); top: var(--y); width: 28px; height: 25px; color: #dfa6ae; opacity: 0; filter: drop-shadow(0 2px 3px #8c705645); transform: scale(var(--butterfly-scale)); animation: butterfly-meander var(--fly-duration) ease-in-out var(--fly-delay) infinite; }
+.ambient-butterfly--gold { color: #e0b978; }
+.ambient-butterfly--blue { color: #91b7bc; }
+.ambient-butterfly svg { display:block; width:100%; height:100%; overflow: visible; }
+.ambient-butterfly-wing { transform-origin: center; transform-box: fill-box; animation: soft-wingbeat .37s ease-in-out infinite alternate; }
+.ambient-butterfly-wing--right { animation-direction: alternate-reverse; }
+@keyframes soft-wingbeat { to { transform: scaleX(.28); } }
+@keyframes butterfly-meander {
+  0% { opacity: 0; transform: translate3d(-10px,25px,0) rotate(-13deg) scale(var(--butterfly-scale)); }
+  14% { opacity: .7; }
+  31% { transform: translate3d(10px,-40px,0) rotate(9deg) scale(var(--butterfly-scale)); }
+  53% { transform: translate3d(-11px,-72px,0) rotate(-17deg) scale(var(--butterfly-scale)); }
+  74% { opacity: .64; transform: translate3d(14px,-120px,0) rotate(14deg) scale(var(--butterfly-scale)); }
+  100% { opacity: 0; transform: translate3d(-8px,-182px,0) rotate(-8deg) scale(var(--butterfly-scale)); }
+}
+
+.story-outgoing { position: absolute; inset: 0; z-index: 7; overflow: hidden; pointer-events: none; }
+.story-outgoing .story-scene { height: 100%; }
+.story-scene--arriving { animation: silk-scene-in 1.3s cubic-bezier(.2,.8,.19,1) both; }
+.story-scene--departing { animation: silk-scene-out 1.3s cubic-bezier(.39,.03,.7,1) both; }
+@keyframes silk-scene-in { 0% { opacity: .08; filter: blur(18px) saturate(.8); transform: translate3d(0,24px,0) scale(1.045); } 60% {opacity: .76; filter: blur(3px) saturate(.95); } 100% { opacity: 1; filter: none; transform: none; } }
+@keyframes silk-scene-out { 0% { opacity:1; filter:none; transform:none; } 65% { opacity:.52; filter:blur(5px); } 100% { opacity:0; filter:blur(16px); transform:translate3d(0,-25px,0) scale(.96); } }
+
+.peacock-companion { pointer-events: none; position: absolute; inset: 0; z-index: 26; isolation: isolate; }
+.peacock-traveler { position: absolute; bottom: clamp(82px,11dvh,128px); left: -38%; width: clamp(125px,33vw,180px); animation: peacock-roam 18s linear infinite; will-change: transform; filter: drop-shadow(0 5px 6px #33584252); }
+.peacock-bob { width: 100%; animation: peacock-bob .52s ease-in-out infinite alternate; }
+.peacock-walk-sprite { width: 100%; aspect-ratio: 210/270; background: url('/peacock-walk-sprite.webp') 0 0/600% 100% no-repeat; animation: peacock-steps .93s steps(5,end) infinite; }
+@keyframes peacock-steps { from { background-position:0% 0; } to { background-position:100% 0; } }
+@keyframes peacock-bob { from {transform:translateY(0) rotate(-1deg);} to {transform:translateY(-5px) rotate(1.35deg);} }
+@keyframes peacock-roam { 0% { left:-38%; } 100% { left:110%; } }
+.peacock-companion--waiting .peacock-traveler { opacity: 0; }
+.peacock-wait-scene { position: absolute; z-index: 5; left: 50%; bottom: clamp(89px,13dvh,142px); width: clamp(165px,48vw,232px); transform: translateX(-50%); text-align: center; opacity: 1; animation: peacock-wait-appear .55s ease-out both; }
+.peacock-wait-sprite { width: 100%; aspect-ratio:210/330; background: url('/peacock-fan-sprite.webp') 0 0/600% 100% no-repeat; filter: drop-shadow(0 9px 12px #214c385e); animation: peacock-unfurl 1.38s steps(5,end) both; }
+.peacock-wait-label { display: block; margin: -10px auto 0; width: max-content; max-width: 95%; border:1px solid #dbc39d; border-radius: 99px; padding: 7px 13px; background: #fffdf3ed; font: italic 500 12px var(--display); color:#3c6554; box-shadow:0 3px 13px #315b3d20; }
+@keyframes peacock-unfurl { from{ background-position:0% 0;} to{background-position:100% 0;} }
+@keyframes peacock-wait-appear {from {opacity:0;transform:translate(-50%,18px) scale(.87);} to{opacity:1;transform:translate(-50%,0) scale(1);} }
+/* The rest of the scene stays frozen. The peacock may spread its tail once on pause. */
+.experience-root--paused .peacock-wait-sprite, .experience-root--paused .peacock-wait-scene { animation-play-state: running !important; }
+.pause-indicator--pet { top: 25%; min-height: 0; width: 150px; padding: 11px 12px; gap: 3px; border-radius: 14px; }
+.pause-indicator--pet span { width: 30px; height: 30px; }
+.pause-indicator--pet strong { font-size: 24px; }
+.pause-indicator--pet small { font-size: 10px; }
+@media(max-height:720px) {
+  .card-inside .as-mark { margin: 1px 0; }
+  .cover-date { margin-top: 6px; }
+  .cover-hijri { margin-top: 0; font-size: 15px; }
+  .card-seal { margin: 12px 0 5px; }
+  .invitation-paper { padding-top:26px; padding-bottom:18px; }
+  .invitation-paper .time-grid { margin: 7px 0; padding: 7px 0; }
+  .hijri-disclaimer {font-size:8px;}
+  .peacock-traveler { bottom: 74px; width: 128px; }
+  .peacock-wait-scene { width: 165px; bottom: 80px; }
+}
+@media(min-width:620px) {
+  .peacock-traveler { width: 175px; bottom: 95px; }
+  .peacock-wait-scene { width: 226px; bottom: 115px; }
+}
+@media(prefers-reduced-motion:reduce) {
+  .butterfly-garden { display:none; }
+  .peacock-companion { display:none; }
+  .story-scene--arriving, .story-scene--departing { animation:none !important; }
+}
+/* The outgoing scene renders fully formed while its parent dissolves. */
+.story-outgoing .screen *, .story-outgoing .screen *::before, .story-outgoing .screen *::after { animation: none !important; }

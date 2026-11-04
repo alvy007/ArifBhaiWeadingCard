@@ -1,5 +1,5 @@
 /**
- * Editable invitation content. The event date, 12-hour designation, venue names,
+ * Editable invitation content. The 12-hour designation, venue names,
  * and detailed addresses are intentionally not fabricated.
  * Documentation files are managed separately on the owner's request.
  */
@@ -14,7 +14,11 @@ export const invitation = {
   ceremony: {
     title: "Kabin Ceremony",
     time: "12:30",
-    date: null as string | null,
+    date: "Friday, 6 November 2026",
+    dateBangla: "শুক্রবার, ৬ নভেম্বর ২০২৬",
+    hijri: "26 Jumada al-Awwal 1448 AH",
+    hijriArabic: "٢٦ جمادى الأولى ١٤٤٨ هـ",
+    hijriNote: "হিজরি তারিখ স্থানীয় চাঁদ দেখার ওপর নির্ভরশীল।",
     timePeriod: null as "AM" | "PM" | null,
   },
   locations: [
