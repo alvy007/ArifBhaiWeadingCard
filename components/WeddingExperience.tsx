@@ -255,6 +255,8 @@ export default function WeddingExperience() {
   const timeRef = useRef(0);
   const barRef = useRef<HTMLDivElement | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  // A Maps link may hide this tab; do not interpret that as an invitation pause.
+  const lastMapNavigationRef = useRef(-Infinity);
   const showHintRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // YouTube's supplied track is offered only in its own visible, official player.
@@ -340,7 +342,10 @@ export default function WeddingExperience() {
     if ("serviceWorker" in navigator && process.env.NODE_ENV === "production") {
       void navigator.serviceWorker.register("/sw.js").catch(() => {});
     }
-    const onVisibility = () => { if (document.hidden && phaseRef.current !== "cover" && phaseRef.current !== "finished") setPauseNow(true); };
+    const onVisibility = () => {
+      const openedMapRecently = performance.now() - lastMapNavigationRef.current < 2500;
+      if (document.hidden && !openedMapRecently && phaseRef.current !== "cover" && phaseRef.current !== "finished") setPauseNow(true);
+    };
     document.addEventListener("visibilitychange", onVisibility);
     return () => { media.removeEventListener("change", updateMotion); document.removeEventListener("visibilitychange", onVisibility); };
   }, [setPauseNow]);
@@ -408,6 +413,10 @@ export default function WeddingExperience() {
     if (phaseRef.current === "cover" || phaseRef.current === "finished") return;
     setPauseNow(!pausedRef.current);
   }, [setPauseNow]);
+
+  const onSurfaceClickCapture = useCallback((event: ReactMouseEvent<HTMLElement>) => {
+    if ((event.target as HTMLElement).closest(".location-item--interactive")) lastMapNavigationRef.current = performance.now();
+  }, []);
 
   const onSurfaceClick = useCallback((event: ReactMouseEvent<HTMLElement>) => {
     const target = event.target as HTMLElement;
@@ -485,7 +494,7 @@ export default function WeddingExperience() {
   }
 
   const progressLabel = phase === "opening" || phase === "butterfly" || phase === "doves" ? "Opening invitation" : pageNames[page];
-  return <main className={`experience-root ${paused ? "experience-root--paused" : ""}`} onClick={onSurfaceClick} tabIndex={-1}>
+  return <main className={`experience-root ${paused ? "experience-root--paused" : ""}`} onClickCapture={onSurfaceClickCapture} onClick={onSurfaceClick} tabIndex={-1}>
     <audio ref={musicRef} src="/wedding-story-original.mp3" preload="auto" loop playsInline aria-hidden="true"/>
     <audio ref={flutterRef} src="/dove-wings.mp3" preload="auto" playsInline aria-hidden="true"/>
     <audio ref={peacockCallRef} src="https://upload.wikimedia.org/wikipedia/commons/0/05/Pavo_cristatus_%28call%29.ogg" preload="none" playsInline aria-hidden="true"/>
