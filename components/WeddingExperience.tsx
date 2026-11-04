@@ -242,9 +242,6 @@ export default function WeddingExperience() {
   const flutterRef = useRef<HTMLAudioElement | null>(null);
   const peacockCallRef = useRef<HTMLAudioElement | null>(null);
   const peacockCallElapsedRef = useRef(0);
-  const youtubeFrameRef = useRef<HTMLIFrameElement | null>(null);
-  const [showYouTubeSong, setShowYouTubeSong] = useState(false);
-  const showYouTubeSongRef = useRef(false);
   const [outgoingPage, setOutgoingPage] = useState<number | null>(null);
 
   const phaseRef = useRef<Phase>("cover");
@@ -259,27 +256,6 @@ export default function WeddingExperience() {
   const lastMapNavigationRef = useRef(-Infinity);
   const showHintRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // YouTube's supplied track is offered only in its own visible, official player.
-  // It is never extracted into audio nor played through an obscured iframe.
-  const controlYouTube = useCallback((command: "playVideo" | "pauseVideo") => {
-    youtubeFrameRef.current?.contentWindow?.postMessage(
-      JSON.stringify({ event: "command", func: command, args: [] }), "https://www.youtube.com"
-    );
-  }, []);
-
-  const toggleYouTubeSong = useCallback(() => {
-    setShowYouTubeSong(current => {
-      const next = !current;
-      showYouTubeSongRef.current = next;
-      if (next) {
-        musicRef.current?.pause();
-      } else if (soundOnRef.current && !pausedRef.current && phaseRef.current !== "cover" && phaseRef.current !== "finished") {
-        void musicRef.current?.play().catch(() => {});
-      }
-      return next;
-    });
-  }, []);
-
   const setPhaseNow = useCallback((next: Phase) => {
     phaseRef.current = next;
     setPhase(next);
@@ -287,8 +263,8 @@ export default function WeddingExperience() {
       const wings = flutterRef.current;
       if (wings) { wings.currentTime = 0; void wings.play().catch(() => {}); }
     }
-    if (next === "finished") { flutterRef.current?.pause(); musicRef.current?.pause(); peacockCallRef.current?.pause(); controlYouTube("pauseVideo"); }
-  }, [controlYouTube]);
+    if (next === "finished") { flutterRef.current?.pause(); musicRef.current?.pause(); peacockCallRef.current?.pause(); }
+  }, []);
   const setPageNow = useCallback((next: number) => {
     const safe = Math.min(pageNames.length - 1, Math.max(0, next));
     if (safe !== pageRef.current && phaseRef.current === "story") {
@@ -309,33 +285,33 @@ export default function WeddingExperience() {
       musicRef.current?.pause();
       flutterRef.current?.pause();
       peacockCallRef.current?.pause();
-      controlYouTube("pauseVideo");
+
     } else if (soundOnRef.current && phaseRef.current !== "cover") {
-      if (!showYouTubeSongRef.current) void musicRef.current?.play().catch(() => {});
-      else controlYouTube("playVideo");
+      void musicRef.current?.play().catch(() => {});
       if (phaseRef.current === "doves") void flutterRef.current?.play().catch(() => {});
       if (phaseRef.current === "story" && peacockCallRef.current && !peacockCallRef.current.ended && peacockCallRef.current.currentTime > 0) {
         void peacockCallRef.current.play().catch(() => {});
       }
     }
-  }, [controlYouTube]);
+  }, []);
 
   const toggleSound = useCallback(() => {
     const enabled = !soundOnRef.current;
     soundOnRef.current = enabled;
     setSoundOn(enabled);
-    if (!enabled) { musicRef.current?.pause(); flutterRef.current?.pause(); peacockCallRef.current?.pause(); controlYouTube("pauseVideo"); }
+    if (!enabled) { musicRef.current?.pause(); flutterRef.current?.pause(); peacockCallRef.current?.pause(); }
     else if (!pausedRef.current && phaseRef.current !== "cover" && phaseRef.current !== "finished") {
-      if (!showYouTubeSongRef.current) void musicRef.current?.play().catch(() => setHint("Tap the music button again if your browser blocks sound."));
-      else controlYouTube("playVideo");
+      void musicRef.current?.play().catch(() => setHint("Tap the music button again if your browser blocks sound."));
       if (phaseRef.current === "doves") void flutterRef.current?.play().catch(() => {});
     }
-  }, [controlYouTube]);
+  }, []);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
     const updateMotion = () => setReducedMotion(media.matches);
     updateMotion(); media.addEventListener("change", updateMotion);
+    // The visitor's first tap is the playback gesture. Keep the flute gentle under the story.
+    if (musicRef.current) musicRef.current.volume = 0.64;
     const image = new window.Image(); image.src = "/arif-suchana.webp";
     const dove = new window.Image(); dove.src = "/white-dove-sprite.webp";
     const peacock = new window.Image(); peacock.src = "/peacock-walk-sprite.webp";
@@ -401,7 +377,7 @@ export default function WeddingExperience() {
     timeRef.current = 0;
     setPauseNow(false);
     // A direct visitor gesture unlocks audio on mobile browsers.
-    if (soundOnRef.current && !showYouTubeSongRef.current) void musicRef.current?.play().catch(() => {
+    if (soundOnRef.current) void musicRef.current?.play().catch(() => {
       soundOnRef.current = false; setSoundOn(false);
       setHint("Your browser muted the music. Tap the music icon to enable it.");
     });
@@ -452,7 +428,6 @@ export default function WeddingExperience() {
     musicRef.current?.pause();
     flutterRef.current?.pause();
     peacockCallRef.current?.pause();
-    controlYouTube("pauseVideo");
     peacockCallElapsedRef.current = 0;
     if (musicRef.current) musicRef.current.currentTime = 0;
     if (flutterRef.current) flutterRef.current.currentTime = 0;
@@ -461,7 +436,7 @@ export default function WeddingExperience() {
     setPageNow(0);
     setPhaseNow("cover");
     setPauseNow(false);
-  }, [setPageNow, setPhaseNow, setPauseNow, controlYouTube]);
+  }, [setPageNow, setPhaseNow, setPauseNow]);
 
   const copy = useCallback(async () => {
     try {
@@ -495,7 +470,7 @@ export default function WeddingExperience() {
 
   const progressLabel = phase === "opening" || phase === "butterfly" || phase === "doves" ? "Opening invitation" : pageNames[page];
   return <main className={`experience-root ${paused ? "experience-root--paused" : ""}`} onClickCapture={onSurfaceClickCapture} onClick={onSurfaceClick} tabIndex={-1}>
-    <audio ref={musicRef} src="/wedding-story-original.mp3" preload="auto" loop playsInline aria-hidden="true"/>
+    <audio ref={musicRef} src="/ranjha-flute-cover.mp3" preload="auto" loop playsInline aria-hidden="true"/>
     <audio ref={flutterRef} src="/dove-wings.mp3" preload="auto" playsInline aria-hidden="true"/>
     <audio ref={peacockCallRef} src="https://upload.wikimedia.org/wikipedia/commons/0/05/Pavo_cristatus_%28call%29.ogg" preload="none" playsInline aria-hidden="true"/>
     <div className="ambient-blur ambient-blur--one" aria-hidden="true"/><div className="ambient-blur ambient-blur--two" aria-hidden="true"/>
@@ -520,9 +495,6 @@ export default function WeddingExperience() {
       {(phase !== "cover") && <div className="player-top">
         <div className="player-brand"><Monogram small/><span>KABIN CEREMONY</span></div>
         <div className="player-actions">
-          <button type="button" className={`player-play requested-song-trigger ${showYouTubeSong ? "requested-song-trigger--active" : ""}`} data-action="true" aria-label={showYouTubeSong ? "Close requested YouTube song player" : "Open the requested YouTube song"} aria-expanded={showYouTubeSong} onClick={toggleYouTubeSong}>
-            <Icon kind="sparkles" size={17}/>
-          </button>
           <button type="button" className="player-play sound-control" data-action="true" aria-label={soundOn ? "Mute background music" : "Play background music"} aria-pressed={soundOn} onClick={toggleSound}>
             <Icon kind={soundOn ? "volume" : "mute"} size={17}/>
           </button>
@@ -541,12 +513,6 @@ export default function WeddingExperience() {
           <button type="button" data-action="true" onClick={() => page < pageNames.length - 1 ? goToPage(page + 1) : replay()}>{page < pageNames.length - 1 ? "Next" : "Replay"}<Icon kind={page < pageNames.length - 1 ? "arrow" : "restart"} size={16}/></button>
         </div>}
       </div>}
-
-      {showYouTubeSong && <aside className="youtube-song-panel" data-action="true" aria-label="Requested YouTube wedding song player">
-        <div className="youtube-song-panel__title"><span>YOUR CHOSEN SONG</span><button type="button" data-action="true" onClick={toggleYouTubeSong} aria-label="Close YouTube player">✕</button></div>
-        <iframe ref={youtubeFrameRef} title="Requested wedding music from YouTube" src="https://www.youtube.com/embed/N9OOJjfTjM8?playsinline=1&enablejsapi=1&controls=1" allow="autoplay; encrypted-media; picture-in-picture" referrerPolicy="strict-origin-when-cross-origin" allowFullScreen/>
-        <a href="https://www.youtube.com/watch?v=N9OOJjfTjM8" target="_blank" rel="noopener noreferrer" data-action="true">Watch or listen on YouTube ↗</a>
-      </aside>}
 
       {paused && <div className="pause-indicator pause-indicator--pet" aria-live="polite" aria-label="Invitation paused. Your peacock is waiting. Tap anywhere to resume"><span><Icon kind="play" size={19}/></span><strong>Paused</strong><small>Tap anywhere to continue</small></div>}
       {phase === "finished" && <div className="finished-marker" aria-live="polite"><Icon kind="sparkles" size={15}/> A beautiful beginning, In Sha Allah</div>}

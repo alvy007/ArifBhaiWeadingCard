@@ -1,20 +1,18 @@
-ORIGINAL AUDIO ASSETS FOR THE ARIF & SUCHANA WEDDING INVITATION
+MUSIC AND SOUND NOTES — ARIF & SUCHANA KABIN INVITATION
 
-wedding-story-original.mp3
-- Original gentle South Asian wedding-style instrumental composed and synthesized for this website.
-- Flute-inspired melody, gentle string plucks, warm drone, and soft percussion.
-- This is not a recording or adaptation of any copyrighted Hindi wedding song.
+ranjha-flute-cover.mp3
+- This MP3 was supplied by the project owner for integration into the invitation.
+- The audio begins only after the visitor taps the opening card; the sound button controls it.
+- Pause/Resume retains the precise track position, and Replay starts it again.
+- The source filename describes it as “Ranjha Flute Cover Instrumental” by Divyansh Shrivastava.
+- It is a cover of a copyrighted composition. Confirm appropriate permission for public distribution and GitHub hosting before publicly publishing the audio.
 
 dove-wings.mp3
-- Original synthesized feather / wing-gust sound effect, built from filtered noise pulses.
+- Original synthesized wing-flap sound effect.
 
-Both sound files are first-party project assets. If a specific commercial track is desired,
-obtain the appropriate playback and public-web distribution permissions, then replace
-the music asset with the authorized recording.
+Peacock call stream
+- Wikimedia Commons public-domain recording, used quietly and intermittently:
+  https://commons.wikimedia.org/wiki/File:Pavo_cristatus_(call).ogg
 
-Authentic peacock call (remote stream): https://upload.wikimedia.org/wikipedia/commons/0/05/Pavo_cristatus_%28call%29.ogg
-Source: Ke4roh, 2009, Pavo cristatus (call).ogg, Wikimedia Commons (public domain).
-Source page: https://commons.wikimedia.org/wiki/File:Pavo_cristatus_(call).ogg
-This remote sound requires network access. It plays occasionally and quietly after a visitor starts the invitation; browsers may block playback.
-Requested wedding song: https://www.youtube.com/watch?v=N9OOJjfTjM8
-The supplied video is available via a visible official YouTube embed (when embeddable). The song is NOT copied, extracted, or redistributed.
+The original first-party website composition remains as wedding-story-original.mp3,
+but is not the primary track in this version.
