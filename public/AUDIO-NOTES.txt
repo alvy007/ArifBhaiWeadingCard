@@ -1,0 +1,13 @@
+ORIGINAL AUDIO ASSETS FOR THE ARIF & SUCHANA WEDDING INVITATION
+
+wedding-story-original.mp3
+- Original gentle South Asian wedding-style instrumental composed and synthesized for this website.
+- Flute-inspired melody, gentle string plucks, warm drone, and soft percussion.
+- This is not a recording or adaptation of any copyrighted Hindi wedding song.
+
+dove-wings.mp3
+- Original synthesized feather / wing-gust sound effect, built from filtered noise pulses.
+
+Both sound files are first-party project assets. If a specific commercial track is desired,
+obtain the appropriate playback and public-web distribution permissions, then replace
+the music asset with the authorized recording.

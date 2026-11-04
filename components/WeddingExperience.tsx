@@ -13,9 +13,10 @@ const STAGE_MS: Record<"opening" | "butterfly" | "doves", number> = {
   butterfly: 1100,
   doves: 3100,
 };
-// Verse screens are intentionally longer so guests can read the Arabic and Bangla.
-const SCREEN_MS = [11000, 25000, 18000, 25000, 20000, 25000, 20000] as const;
-const SCENE_CROSSFADE_MS = 1300;
+// A single scene clock keeps narration, scenery and the walking peacock synchronized.
+// A short, uninterrupted wedding narrative: roughly 45 seconds after opening.
+const SCREEN_MS = [11000, 13000, 12000, 11000] as const;
+const SCENE_CROSSFADE_MS = 1700;
 const BIRDS = [
   { id: 0, y: 13, delay: 20, duration: 2250, size: .68, drift: -16, tilt: -8, opacity: .78, blur: .5 },
   { id: 1, y: 66, delay: 230, duration: 2600, size: 1.02, drift: -25, tilt: 8, opacity: .98, blur: 0 },
@@ -107,7 +108,7 @@ function Doves() {
   </div>;
 }
 
-function Icon({ kind, size = 19 }: { kind: "pause" | "play" | "arrow" | "back" | "restart" | "pin" | "share" | "copy" | "check" | "sparkles"; size?: number }) {
+function Icon({ kind, size = 19 }: { kind: "pause" | "play" | "arrow" | "back" | "restart" | "pin" | "share" | "copy" | "check" | "sparkles" | "volume" | "mute"; size?: number }) {
   const common = { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.65, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true as const };
   const path = {
     pause: <><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></>,
@@ -120,6 +121,8 @@ function Icon({ kind, size = 19 }: { kind: "pause" | "play" | "arrow" | "back" |
     copy: <><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></>,
     check: <path d="m5 12 5 5L20 7"/>,
     sparkles: <><path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3Z"/><path d="m19 17 .8 1.2L21 19l-1.2.8L19 21l-.8-1.2L17 19l1.2-.8L19 17Z"/></>,
+    volume: <><path d="M4 10v4h4l5 4V6L8 10H4Z"/><path d="M16 9a5 5 0 0 1 0 6M19 6a9 9 0 0 1 0 12"/></>,
+    mute: <><path d="M4 10v4h4l5 4V6L8 10H4Z"/><path d="m17 10 5 5m0-5-5 5"/></>,
   }[kind];
   return <svg {...common}>{path}</svg>;
 }
@@ -139,7 +142,8 @@ function Cover() {
         <p className="cover-date">FRIDAY · 6 NOVEMBER 2026</p>
         <p className="cover-hijri" dir="rtl" lang="ar">{invitation.ceremony.hijriArabic}</p>
         <span className="card-seal"><span>♥</span></span>
-        <p className="opening-hint">TAP ANYWHERE TO OPEN</p>
+        <p className="opening-hint">TAP TO OPEN OUR STORY</p>
+        <p className="opening-audio-hint">♪ Original soft wedding instrumental</p>
       </div>
       <div className="envelope-flap" aria-hidden="true"><span>♥</span></div>
     </div>
@@ -159,31 +163,14 @@ function HeroPage() {
   </section>;
 }
 
-function VersePage({ index }: { index: 0 | 1 | 2 }) {
-  const v = invitation.verses[index];
-  return <section className={`screen screen--verse screen--verse-${index + 1}`} aria-label={v.reference}>
-    <div className="verse-orbit" aria-hidden="true"/><FloralCorner/><FloralCorner side="right"/>
-    <article className="verse-inner">
-      <span className="verse-symbol">۞</span>
-      <p className="small-overline">{v.eyebrow}</p>
-      <h2>{v.title}</h2>
-      <p className="arabic-verse" lang="ar" dir="rtl">{v.arabic}</p>
-      <div className="gold-separator">✧</div>
-      <span className="translation-label">বাংলা ভাবার্থ</span>
-      <p className="bangla-verse" lang="bn">{v.bangla}</p>
-      <a href={v.link} target="_blank" rel="noopener noreferrer" className="verse-source" data-action="true">{v.reference} <span aria-hidden="true">↗</span></a>
-    </article>
-  </section>;
-}
-
 function CeremonyPage() {
   return <section className="screen screen--ceremony" aria-label="Kabin ceremony invitation">
     <div className="invitation-paper">
       <FloralCorner/><FloralCorner side="right"/>
       <p className="opening-bismillah" lang="ar" dir="rtl">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
-      <p className="small-overline">WITH THE LOVE OF OUR FAMILIES</p>
+      <p className="small-overline">THE NEXT CHAPTER OF OUR STORY</p>
       <h2>You are <em>invited</em></h2>
-      <p className="ceremony-caption">With grateful hearts, we invite you to celebrate a new journey with us.</p>
+      <p className="ceremony-caption">Two hearts, two families, one beautiful new beginning. With grateful hearts, we invite you to be part of our special day.</p>
       <div className="ceremony-names"><strong>Arif Rahman</strong><span>&amp;</span><strong>Suchana Sarker</strong></div>
       <div className="ceremony-rule">✦</div>
       <p className="small-overline">KABIN CEREMONY</p>
@@ -198,7 +185,7 @@ function CeremonyPage() {
 
 function LocationsPage() {
   return <section className="screen screen--locations" aria-label="Kabin locations">
-    <div className="locations-heading"><span className="small-overline">CELEBRATE WITH US</span><h2>Find your <em>way</em></h2><p lang="bn">কাবিন অনুষ্ঠানের জন্য প্রয়োজনীয় দুইটি লোকেশন</p></div>
+    <div className="locations-heading"><span className="small-overline">OUR JOURNEY LEADS TO YOU</span><h2>Come celebrate <em>with us</em></h2><p lang="bn">আপনাদের উপস্থিতি আমাদের আনন্দ পূর্ণ করবে। নিচে দুইটি লোকেশনের দিকনির্দেশনা রয়েছে।</p></div>
     <div className="location-stack">
       {invitation.locations.map((location, i) => <article className="location-item" key={location.id} style={{ "--venue-index": i } as CSSProperties}>
         <div className="location-icon"><Icon kind="pin" size={23}/></div>
@@ -215,10 +202,10 @@ function ClosingPage({ onShare, onCopy, onReplay, copied }: { onShare: () => voi
     <FloralCorner/><FloralCorner side="right"/>
     <div className="closing-content">
       <span className="blessing-flower">❀</span>
-      <p className="small-overline">WITH LOVE, FAITH & GRATITUDE</p>
+      <p className="small-overline">AND SO OUR STORY BEGINS</p>
       <Monogram/>
       <h2>A new chapter,<br/><em>In Sha Allah.</em></h2>
-      <p lang="bn" className="closing-dua">আমাদের নতুন পথচলায় আপনাদের আন্তরিক দোয়া ও ভালোবাসা কামনা করি। আল্লাহ যেন আমাদের দাম্পত্য জীবন রহমত, বরকত ও প্রশান্তিতে পূর্ণ করেন। আমিন।</p>
+      <p lang="bn" className="closing-dua">আমাদের নতুন পথচলায় আপনাদের ভালোবাসা ও দোয়া কামনা করি। এই আনন্দের দিনে আপনাদের উপস্থিতিই আমাদের সবচেয়ে বড় উপহার।</p>
       <strong className="closing-names">Arif Rahman <span>&amp;</span> Suchana Sarker</strong>
       <p className="closing-event-date">6 NOVEMBER 2026 · 26 JUMADA AL-AWWAL 1448 AH</p>
       <p className="small-overline">KABIN CEREMONY</p>
@@ -239,6 +226,10 @@ export default function WeddingExperience() {
   const [copied, setCopied] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [hint, setHint] = useState("");
+  const [soundOn, setSoundOn] = useState(true);
+  const soundOnRef = useRef(true);
+  const musicRef = useRef<HTMLAudioElement | null>(null);
+  const flutterRef = useRef<HTMLAudioElement | null>(null);
   const [outgoingPage, setOutgoingPage] = useState<number | null>(null);
 
   const phaseRef = useRef<Phase>("cover");
@@ -251,7 +242,15 @@ export default function WeddingExperience() {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const showHintRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const setPhaseNow = useCallback((next: Phase) => { phaseRef.current = next; setPhase(next); }, []);
+  const setPhaseNow = useCallback((next: Phase) => {
+    phaseRef.current = next;
+    setPhase(next);
+    if (next === "doves" && soundOnRef.current) {
+      const wings = flutterRef.current;
+      if (wings) { wings.currentTime = 0; void wings.play().catch(() => {}); }
+    }
+    if (next === "finished") { flutterRef.current?.pause(); musicRef.current?.pause(); }
+  }, []);
   const setPageNow = useCallback((next: number) => {
     const safe = Math.min(pageNames.length - 1, Math.max(0, next));
     if (safe !== pageRef.current && phaseRef.current === "story") {
@@ -265,7 +264,26 @@ export default function WeddingExperience() {
     scrollRef.current?.scrollTo({ top: 0, behavior: "instant" });
     if (barRef.current) barRef.current.style.transform = "scaleX(0)";
   }, []);
-  const setPauseNow = useCallback((value: boolean) => { pausedRef.current = value; setPaused(value); }, []);
+  const setPauseNow = useCallback((value: boolean) => {
+    pausedRef.current = value;
+    setPaused(value);
+    if (value) { musicRef.current?.pause(); flutterRef.current?.pause(); }
+    else if (soundOnRef.current && phaseRef.current !== "cover") {
+      void musicRef.current?.play().catch(() => {});
+      if (phaseRef.current === "doves") void flutterRef.current?.play().catch(() => {});
+    }
+  }, []);
+
+  const toggleSound = useCallback(() => {
+    const enabled = !soundOnRef.current;
+    soundOnRef.current = enabled;
+    setSoundOn(enabled);
+    if (!enabled) { musicRef.current?.pause(); flutterRef.current?.pause(); }
+    else if (!pausedRef.current && phaseRef.current !== "cover" && phaseRef.current !== "finished") {
+      void musicRef.current?.play().catch(() => setHint("Tap the music button again if your browser blocks sound."));
+      if (phaseRef.current === "doves") void flutterRef.current?.play().catch(() => {});
+    }
+  }, []);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -273,6 +291,7 @@ export default function WeddingExperience() {
     updateMotion(); media.addEventListener("change", updateMotion);
     const image = new window.Image(); image.src = "/arif-suchana.webp";
     const dove = new window.Image(); dove.src = "/white-dove-sprite.webp";
+    const peacock = new window.Image(); peacock.src = "/peacock-walk-sprite.webp";
     if ("serviceWorker" in navigator && process.env.NODE_ENV === "production") {
       void navigator.serviceWorker.register("/sw.js").catch(() => {});
     }
@@ -322,6 +341,11 @@ export default function WeddingExperience() {
     }
     timeRef.current = 0;
     setPauseNow(false);
+    // A direct visitor gesture unlocks audio on mobile browsers.
+    if (soundOnRef.current) void musicRef.current?.play().catch(() => {
+      soundOnRef.current = false; setSoundOn(false);
+      setHint("Your browser muted the music. Tap the music icon to enable it.");
+    });
     if (reducedMotion) { setPageNow(0); setPhaseNow("story"); }
     else setPhaseNow("opening");
   }, [reducedMotion, setPageNow, setPhaseNow, setPauseNow]);
@@ -362,6 +386,10 @@ export default function WeddingExperience() {
   }, [setPageNow, setPhaseNow, setPauseNow]);
 
   const replay = useCallback(() => {
+    musicRef.current?.pause();
+    flutterRef.current?.pause();
+    if (musicRef.current) musicRef.current.currentTime = 0;
+    if (flutterRef.current) flutterRef.current.currentTime = 0;
     timeRef.current = 0;
     outgoingPageRef.current = null; setOutgoingPage(null);
     setPageNow(0);
@@ -392,18 +420,17 @@ export default function WeddingExperience() {
   function renderScreen(index: number) {
     switch (index) {
       case 0: return <HeroPage/>;
-      case 1: return <VersePage index={0}/>;
-      case 2: return <CeremonyPage/>;
-      case 3: return <VersePage index={1}/>;
-      case 4: return <LocationsPage/>;
-      case 5: return <VersePage index={2}/>;
-      case 6: return <ClosingPage onCopy={copy} onShare={share} onReplay={replay} copied={copied}/>;
+      case 1: return <CeremonyPage/>;
+      case 2: return <LocationsPage/>;
+      case 3: return <ClosingPage onCopy={copy} onShare={share} onReplay={replay} copied={copied}/>;
       default: return <HeroPage/>;
     }
   }
 
   const progressLabel = phase === "opening" || phase === "butterfly" || phase === "doves" ? "Opening invitation" : pageNames[page];
   return <main className={`experience-root ${paused ? "experience-root--paused" : ""}`} onClick={onSurfaceClick} tabIndex={-1}>
+    <audio ref={musicRef} src="/wedding-story-original.mp3" preload="auto" loop playsInline aria-hidden="true"/>
+    <audio ref={flutterRef} src="/dove-wings.mp3" preload="auto" playsInline aria-hidden="true"/>
     <div className="ambient-blur ambient-blur--one" aria-hidden="true"/><div className="ambient-blur ambient-blur--two" aria-hidden="true"/>
     <div className="mobile-experience" aria-label="Arif and Suchana's animated Kabin invitation">
       {(phase === "cover" || phase === "opening" || phase === "butterfly") && <div className={`cover-stage cover-stage--${phase}`}>
@@ -425,9 +452,14 @@ export default function WeddingExperience() {
 
       {(phase !== "cover") && <div className="player-top">
         <div className="player-brand"><Monogram small/><span>KABIN CEREMONY</span></div>
-        <button type="button" className="player-play" data-action="true" aria-label={paused ? "Resume invitation" : "Pause invitation"} onClick={togglePause} disabled={phase === "finished"}>
-          <Icon kind={paused ? "play" : "pause"} size={18}/>
-        </button>
+        <div className="player-actions">
+          <button type="button" className="player-play sound-control" data-action="true" aria-label={soundOn ? "Mute original wedding music" : "Play original wedding music"} aria-pressed={soundOn} onClick={toggleSound}>
+            <Icon kind={soundOn ? "volume" : "mute"} size={17}/>
+          </button>
+          <button type="button" className="player-play" data-action="true" aria-label={paused ? "Resume invitation" : "Pause invitation"} onClick={togglePause} disabled={phase === "finished"}>
+            <Icon kind={paused ? "play" : "pause"} size={18}/>
+          </button>
+        </div>
       </div>}
 
       {phase !== "cover" && <div className="player-bottom">
@@ -435,13 +467,13 @@ export default function WeddingExperience() {
         <div className="player-caption"><span>{progressLabel}</span><span>{phase === "story" || phase === "finished" ? `${String(page + 1).padStart(2, "0")} / ${String(pageNames.length).padStart(2, "0")}` : "A & S"}</span></div>
         {(phase === "story" || phase === "finished") && <div className="player-buttons">
           <button type="button" data-action="true" onClick={() => goToPage(page - 1)} disabled={page === 0} aria-label="Previous screen"><Icon kind="back" size={16}/> Previous</button>
-          <span className="player-tap-hint">Tap screen to {paused ? "resume" : "pause"}</span>
+          <span className="player-tap-hint">{paused ? "Tap to resume" : "A story in motion · tap to pause"}</span>
           <button type="button" data-action="true" onClick={() => page < pageNames.length - 1 ? goToPage(page + 1) : replay()}>{page < pageNames.length - 1 ? "Next" : "Replay"}<Icon kind={page < pageNames.length - 1 ? "arrow" : "restart"} size={16}/></button>
         </div>}
       </div>}
 
       {paused && <div className="pause-indicator pause-indicator--pet" aria-live="polite" aria-label="Invitation paused. Your peacock is waiting. Tap anywhere to resume"><span><Icon kind="play" size={19}/></span><strong>Paused</strong><small>Tap anywhere to continue</small></div>}
-      {phase === "finished" && <div className="finished-marker" aria-live="polite"><Icon kind="sparkles" size={15}/> Your invitation journey is complete</div>}
+      {phase === "finished" && <div className="finished-marker" aria-live="polite"><Icon kind="sparkles" size={15}/> A beautiful beginning, In Sha Allah</div>}
       {hint && <div className="message-toast" role="alert" data-action="true">{hint}<button onClick={() => setHint("")}>Close</button></div>}
     </div>
     <span className="sr-only" aria-live="polite">{phase === "cover" ? "Invitation ready to open." : paused ? "Invitation paused." : phase === "finished" ? "Invitation finished." : `${progressLabel} playing.`}</span>
