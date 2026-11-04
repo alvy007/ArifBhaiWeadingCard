@@ -2,11 +2,11 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "A & S | Kabin Ceremony",
-  description: "A special invitation celebrating the Kabin ceremony of Arif Rahman and Suchana Sarker.",
+  title: "Arif & Suchana | Kabin Ceremony Invitation",
+  description: "With love and blessings, join Arif Rahman and Suchana Sarker in celebrating their Kabin ceremony. A personal invitation filled with prayers and gratitude.",
   openGraph: {
     title: "A & S | Kabin Ceremony",
-    description: "You are warmly invited to celebrate with Arif & Suchana.",
+    description: "A wedding invitation from Arif & Suchana, with love and prayers.",
     images: ["/arif-suchana.webp"],
     type: "website",
   },
@@ -15,13 +15,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#ecf3ec",
+  themeColor: "#f6f2e8",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
-  );
+  return <html lang="en"><body>{children}</body></html>;
 }
