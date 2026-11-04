@@ -2,12 +2,17 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Arif & Suchana | Kabin Ceremony Invitation",
-  description: "With love and blessings, join Arif Rahman and Suchana Sarker in celebrating their Kabin ceremony. A personal invitation filled with prayers and gratitude.",
+  title: "Arif & Suchana | Kabin Ceremony",
+  description: "A personal animated Kabin ceremony invitation for Arif Rahman and Suchana Sarker, filled with love, prayers, and warm wishes.",
+  applicationName: "A & S Kabin Invitation",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, statusBarStyle: "default", title: "A & S Kabin" },
+  icons: { icon: "/icon-192.png", apple: "/icon-192.png" },
+  robots: { index: false, follow: false },
   openGraph: {
     title: "A & S | Kabin Ceremony",
-    description: "A wedding invitation from Arif & Suchana, with love and prayers.",
-    images: ["/arif-suchana.webp"],
+    description: "Arif Rahman & Suchana Sarker invite you to share in their Kabin ceremony.",
+    images: [{ url: "/arif-suchana.webp", width: 640, height: 853 }],
     type: "website",
   },
 };
@@ -15,7 +20,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#f6f2e8",
+  viewportFit: "cover",
+  themeColor: "#315d4d",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
