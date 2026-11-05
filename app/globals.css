@@ -790,3 +790,230 @@ button:focus-visible, a:focus-visible { outline: 3px solid #c9a76f; outline-offs
     animation: none !important;
   }
 }
+
+
+/* === UI ALIGNMENT SYSTEM V8: shared rhythm, clear reading lane ===
+   The decorative peacock stays in its own foreground rail. Reading content
+   uses a consistent centered column and remains reachable by scrolling. */
+:root {
+  --ui-gutter: clamp(16px, 5vw, 26px);
+  --ui-reading-width: 425px;
+  --ui-section-gap: clamp(12px, 2.2dvh, 20px);
+}
+.story-scroll {
+  scrollbar-gutter: stable;
+  -webkit-overflow-scrolling: touch;
+  scroll-padding-top: max(70px, calc(env(safe-area-inset-top) + 60px));
+  scroll-padding-bottom: calc(var(--safe-controls) + var(--story-rail) + 12px);
+}
+.screen {
+  width: 100%;
+  min-height: 100%;
+  height: auto;
+  overflow: visible;
+  align-items: center;
+  padding-left: var(--ui-gutter);
+  padding-right: var(--ui-gutter);
+  padding-bottom: calc(var(--safe-controls) + var(--story-rail) + 22px);
+}
+.screen--hero {
+  padding-left: 0;
+  padding-right: 0;
+}
+.screen--hero .hero-bottom {
+  width: 100%;
+  max-width: var(--ui-reading-width);
+  padding-inline: var(--ui-gutter);
+  margin-inline: auto;
+}
+.screen--hero .hero-bottom h2 {
+  text-wrap: balance;
+  max-width: 17ch;
+  margin-inline: auto;
+}
+.screen--hero .hero-bottom > p:not(.small-overline) {
+  text-wrap: balance;
+  max-width: 30ch;
+  margin-inline: auto;
+}
+.invitation-paper,
+.locations-heading,
+.location-stack,
+.map-footnote,
+.closing-content {
+  width: 100%;
+  max-width: var(--ui-reading-width);
+  margin-left: auto;
+  margin-right: auto;
+}
+.invitation-paper {
+  padding: clamp(20px, 4.8vw, 29px) clamp(18px, 4.4vw, 25px);
+}
+.invitation-paper .ceremony-caption {
+  max-width: 31ch;
+  margin-left: auto;
+  margin-right: auto;
+  text-wrap: pretty;
+}
+.ceremony-names,
+.ceremony-names strong {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+.time-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+}
+.time-grid > div {
+  min-width: 0;
+  text-align: center;
+  justify-content: center;
+}
+.time-grid strong {
+  overflow-wrap: anywhere;
+  line-height: 1.35;
+}
+.date-bangla,
+.date-hijri,
+.ceremony-bangla {
+  max-width: 34ch;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+  text-wrap: pretty;
+}
+.locations-heading {
+  text-align: center;
+  margin-bottom: var(--ui-section-gap);
+}
+.locations-heading h2 {
+  max-width: 18ch;
+  margin-inline: auto;
+  text-wrap: balance;
+}
+.location-stack {
+  gap: clamp(10px, 1.8dvh, 16px);
+}
+.location-item--interactive {
+  align-items: center;
+  width: 100%;
+  min-height: 90px;
+  padding: clamp(12px, 3vw, 17px);
+  gap: clamp(10px, 3vw, 15px);
+}
+.location-item--interactive .location-details {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.location-item--interactive .location-title {
+  font-size: clamp(26px, 7.3vw, 34px);
+  line-height: 1.06;
+  overflow-wrap: anywhere;
+}
+.location-item--interactive .location-description {
+  font-size: clamp(11px, 2.9vw, 12px);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.location-icon {
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+}
+.location-map-link {
+  flex: 0 0 36px;
+}
+.map-footnote {
+  max-width: 33ch;
+  margin-top: var(--ui-section-gap);
+  text-align: center;
+}
+.closing-content {
+  padding-inline: 0;
+  padding-bottom: 12px;
+}
+.closing-content h2 {
+  max-width: 20ch;
+  margin-inline: auto;
+  text-wrap: balance;
+}
+.closing-dua {
+  max-width: 32ch;
+  margin-left: auto;
+  margin-right: auto;
+  text-wrap: pretty;
+}
+.closing-actions {
+  width: 100%;
+  max-width: 310px;
+  margin-left: auto;
+  margin-right: auto;
+  gap: 12px;
+}
+.closing-actions button {
+  min-height: 44px;
+  flex: 1 1 0;
+  padding-inline: 12px;
+}
+.replay-invitation {
+  min-height: 44px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.player-top {
+  gap: 12px;
+}
+.player-brand {
+  min-width: 0;
+}
+.player-brand > span:last-child {
+  line-height: 1.4;
+}
+.player-actions {
+  flex: 0 0 auto;
+}
+.player-play {
+  min-width: 44px;
+  min-height: 44px;
+}
+.player-bottom {
+  padding-left: var(--ui-gutter);
+  padding-right: var(--ui-gutter);
+}
+.player-buttons {
+  gap: 8px;
+}
+.player-buttons button {
+  min-height: 44px;
+  min-width: 0;
+  flex: 0 0 auto;
+  padding: 8px 12px;
+}
+.player-tap-hint {
+  flex: 1 1 auto;
+  min-width: 0;
+  line-height: 1.4;
+}
+@media (max-width: 375px) {
+  :root { --ui-gutter: 15px; }
+  .location-icon { width: 36px; height: 36px; flex-basis: 36px; }
+  .location-map-link { width: 32px; height: 32px; flex-basis: 32px; }
+  .player-tap-hint { font-size: 9px; }
+}
+@media (max-height: 740px) {
+  /* Compact screens may scroll instead of silently clipping invitation text. */
+  .screen { padding-bottom: calc(var(--safe-controls) + var(--story-rail) + 20px); }
+  .screen--ceremony .ceremony-bangla {
+    display: block;
+    font-size: 11px;
+    line-height: 1.5;
+    margin: 7px auto;
+  }
+  .screen--closing .closing-content { padding-bottom: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .location-item--interactive,
+  .player-play,
+  .closing-actions button { transition: none; }
+}
