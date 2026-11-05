@@ -16,7 +16,7 @@ const STAGE_MS: Record<"opening" | "butterfly" | "doves", number> = {
 // A single scene clock keeps narration, scenery and the walking peacock synchronized.
 // A short, uninterrupted wedding narrative: roughly 45 seconds after opening.
 const SCREEN_MS = [14000, 24000, 22000, 18000] as const;
-const SCENE_CROSSFADE_MS = 1700;
+const SCENE_CROSSFADE_MS = 1700; // Side-scrolling journey between sections.
 const BIRDS = [
   { id: 0, y: 13, delay: 20, duration: 2250, size: .68, drift: -16, tilt: -8, opacity: .78, blur: .5 },
   { id: 1, y: 66, delay: 230, duration: 2600, size: 1.02, drift: -25, tilt: 8, opacity: .98, blur: 0 },
@@ -484,13 +484,13 @@ export default function WeddingExperience() {
         {phase === "butterfly" && <div className="butterfly-position" style={{ left: `${point.x}%`, top: `${point.y}%` }}><Butterfly/></div>}
       </div>}
 
-      {showStory && <div className={`story-stage ${phase === "doves" ? "story-stage--hidden" : ""}`}>
+      {showStory && <div className={`story-stage ${phase === "doves" ? "story-stage--hidden" : ""} ${outgoingPage !== null && phase === "story" ? "story-stage--journey-in" : ""}`}>
         <div className="story-scroll" ref={scrollRef}>
           <div className="story-scene story-scene--arriving" key={`${phase === "doves" ? "prelude" : "story"}-${storyIndex}`}>{renderScreen(storyIndex)}</div>
         </div>
       </div>}
 
-      {outgoingPage !== null && phase === "story" && <div className="story-outgoing" aria-hidden="true"><div className="story-scene story-scene--departing" key={`out-${outgoingPage}`}>{renderScreen(outgoingPage)}</div></div>}
+      {outgoingPage !== null && phase === "story" && <div className="story-outgoing story-outgoing--journey-out" aria-hidden="true"><div className="story-scene story-scene--departing" key={`out-${outgoingPage}`}>{renderScreen(outgoingPage)}</div></div>}
       {phase === "doves" && !reducedMotion && <Doves/>}
       <AmbientButterflies/>
       <PeacockCompanion paused={paused} visible={(phase === "story" || phase === "finished") && !reducedMotion} reducedMotion={reducedMotion} page={page}/>
