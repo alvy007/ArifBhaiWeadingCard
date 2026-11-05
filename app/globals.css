@@ -616,7 +616,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid #c9a76f; outline-offs
   .screen--ceremony .date-bangla { margin: 5px auto 0; }
   .screen--ceremony .date-hijri { margin: 2px auto; font-size: 17px; }
   .screen--ceremony .hijri-disclaimer { font-size: 8px; margin: 2px auto; }
-  .screen--ceremony .ceremony-bangla { display: none; }
+  .screen--ceremony .ceremony-bangla { display: block; font-size: 11px; line-height: 1.5; margin: 6px auto; }
   .screen--locations .locations-heading h2 { font-size: 38px; }
   .screen--locations .location-item { padding: 8px 10px; }
   .screen--locations .location-details h3 { font-size: 25px; }
