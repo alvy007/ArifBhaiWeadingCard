@@ -85,10 +85,13 @@ function AmbientButterflies() {
 
 // Persistent companion: it never remounts between story pages. Hiding the walker
 // during a pause retains the exact CSS walk/step phase underneath the fan overlay.
-function PeacockCompanion({ paused, visible, reducedMotion }: { paused: boolean; visible: boolean; reducedMotion: boolean }) {
+function PeacockCompanion({ paused, visible, reducedMotion, page }: { paused: boolean; visible: boolean; reducedMotion: boolean; page: number }) {
   if (!visible) return null;
+  // Every story page gets one full walk. The same SCREEN_MS value drives both
+  // the scene clock and the walk, so the background cannot advance mid-walk.
+  const walkStyle = { "--walk-duration": `${SCREEN_MS[page]}ms` } as CSSProperties;
   return <div className={`peacock-companion ${paused ? "peacock-companion--waiting" : ""} ${reducedMotion ? "peacock-companion--still" : ""}`} aria-hidden="true">
-    <div className="peacock-traveler"><div className="peacock-bob"><div className="peacock-walk-sprite"/></div></div>
+    <div className="peacock-traveler" key={page} style={walkStyle}><div className="peacock-bob"><div className="peacock-walk-sprite"/></div></div>
     {paused && <div className="peacock-wait-scene"><div className="peacock-wait-sprite"/><span className="peacock-wait-label">Your little friend is waiting ♡</span></div>}
   </div>;
 }
@@ -490,7 +493,7 @@ export default function WeddingExperience() {
       {outgoingPage !== null && phase === "story" && <div className="story-outgoing" aria-hidden="true"><div className="story-scene story-scene--departing" key={`out-${outgoingPage}`}>{renderScreen(outgoingPage)}</div></div>}
       {phase === "doves" && !reducedMotion && <Doves/>}
       <AmbientButterflies/>
-      <PeacockCompanion paused={paused} visible={(phase === "story" || phase === "finished") && !reducedMotion} reducedMotion={reducedMotion}/>
+      <PeacockCompanion paused={paused} visible={(phase === "story" || phase === "finished") && !reducedMotion} reducedMotion={reducedMotion} page={page}/>
 
       {(phase !== "cover") && <div className="player-top">
         <div className="player-brand"><Monogram small/><span>KABIN CEREMONY</span></div>
