@@ -621,15 +621,23 @@ button:focus-visible, a:focus-visible { outline: 3px solid #c9a76f; outline-offs
   .screen--locations .location-item { padding: 8px 10px; }
   .screen--locations .location-details h3 { font-size: 25px; }
 }
-/* The waiting bird fans over a smooth, distraction-free vignette. */
+/* On pause, hide the walking sprite completely, including its frozen
+   opacity keyframe. Preserve the page instead of adding an opaque vignette. */
+.peacock-companion--waiting .peacock-traveler {
+  display: none;
+}
 .peacock-companion--waiting::before {
-  content: "";
-  position: absolute;
-  left: 0; right: 0;
-  bottom: var(--safe-controls);
-  height: clamp(220px, 34dvh, 300px);
-  background: linear-gradient(to bottom, #fffaf300, #fffaf3f0 30%, #fffaf3 62%);
-  pointer-events: none;
+  content: none;
+}
+.experience-root--paused .story-stage::after,
+.experience-root--paused .story-outgoing::after {
+  background: linear-gradient(to bottom, transparent, rgba(255,250,243,.12));
+  border-top-color: transparent;
+}
+.experience-root--paused .pause-indicator--pet {
+  background: rgba(255,253,248,.83);
+  backdrop-filter: blur(3px);
+  box-shadow: 0 5px 20px #223e2d1c;
 }
 @media (max-height: 740px) {
   .screen--ceremony { padding-top: 66px; }
