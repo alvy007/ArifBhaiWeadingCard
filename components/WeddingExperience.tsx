@@ -15,7 +15,7 @@ const STAGE_MS: Record<"opening" | "butterfly" | "doves", number> = {
 };
 // A single scene clock keeps narration, scenery and the walking peacock synchronized.
 // A short, uninterrupted wedding narrative: roughly 45 seconds after opening.
-const SCREEN_MS = [11000, 13000, 12000, 11000] as const;
+const SCREEN_MS = [14000, 24000, 22000, 18000] as const;
 const SCENE_CROSSFADE_MS = 1700;
 const BIRDS = [
   { id: 0, y: 13, delay: 20, duration: 2250, size: .68, drift: -16, tilt: -8, opacity: .78, blur: .5 },
