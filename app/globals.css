@@ -342,7 +342,7 @@ button:focus-visible, a:focus-visible { outline: 3px solid #c9a76f; outline-offs
 }
 /* Walking at the foreground while the backgrounds travel past the companion. */
 .peacock-companion { z-index: 28; }
-.peacock-traveler { bottom: clamp(89px,11dvh,135px); left: 36%; width: clamp(112px,29vw,154px); animation: companion-lead 12s linear infinite; }
+.peacock-traveler { bottom: clamp(89px,11dvh,135px); left: 36%; width: clamp(112px,29vw,154px); animation: companion-lead var(--walk-duration, 14s) linear 1 both; }
 @keyframes companion-lead {
   0%   { left: -28%; opacity: 0; }
   13%  { left: 4%; opacity: 1; }
