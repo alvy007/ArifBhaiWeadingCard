@@ -767,8 +767,10 @@ button:focus-visible, a:focus-visible { outline: 3px solid #c9a76f; outline-offs
   z-index: 7;
   animation: journey-landscape-out 1700ms cubic-bezier(.22,.68,.22,1) both;
 }
-.story-stage--journey-in .story-scene--arriving,
-.story-outgoing--journey-out .story-scene--departing {
+/* Only the landscape wrapper slides. Do not let nested scenes replay a
+   second entrance when the journey class is removed at the end. */
+.story-stage .story-scene--arriving,
+.story-outgoing .story-scene--departing {
   animation: none !important;
   opacity: 1;
   filter: none;
