@@ -234,6 +234,7 @@ function ClosingPage({ onShare, onCopy, onReplay, copied }: { onShare: () => voi
 export default function WeddingExperience() {
   const [phase, setPhase] = useState<Phase>("cover");
   const [page, setPage] = useState(0);
+  const [walkingPage, setWalkingPage] = useState(0);
   const [paused, setPaused] = useState(false);
   const [point, setPoint] = useState<Point>({ x: 50, y: 50 });
   const [copied, setCopied] = useState(false);
@@ -251,6 +252,7 @@ export default function WeddingExperience() {
   const transitionElapsedRef = useRef(0);
   const outgoingPageRef = useRef<number | null>(null);
   const pageRef = useRef(0);
+  const walkingPageRef = useRef(0);
   const pausedRef = useRef(false);
   const timeRef = useRef(0);
   const barRef = useRef<HTMLDivElement | null>(null);
@@ -277,6 +279,8 @@ export default function WeddingExperience() {
     } else { outgoingPageRef.current = null; setOutgoingPage(null); }
     pageRef.current = safe;
     setPage(safe);
+    walkingPageRef.current = safe;
+    setWalkingPage(safe);
     timeRef.current = 0;
     scrollRef.current?.scrollTo({ top: 0, behavior: "instant" });
     if (barRef.current) barRef.current.style.transform = "scaleX(0)";
@@ -353,7 +357,22 @@ export default function WeddingExperience() {
           }
         }
         timeRef.current += delta;
-        const duration = current === "story" ? SCREEN_MS[pageRef.current] : STAGE_MS[current];
+        // Keep the walking bird on its existing journey until it crosses the
+        // right edge. Begin sliding in the next section DURING that final stride,
+        // not after the bird has disappeared.
+        const walkingIndex = walkingPageRef.current;
+        const duration = current === "story" ? SCREEN_MS[walkingIndex] : STAGE_MS[current];
+        if (current === "story" && !reducedMotion &&
+            walkingIndex < pageNames.length - 1 &&
+            pageRef.current === walkingIndex &&
+            timeRef.current >= duration - SCENE_CROSSFADE_MS) {
+          outgoingPageRef.current = walkingIndex;
+          setOutgoingPage(walkingIndex);
+          transitionElapsedRef.current = 0;
+          pageRef.current = walkingIndex + 1;
+          setPage(walkingIndex + 1);
+          scrollRef.current?.scrollTo({ top: 0, behavior: "instant" });
+        }
         const fraction = Math.min(1, timeRef.current / duration);
         if (barRef.current) barRef.current.style.transform = `scaleX(${fraction})`;
         if (timeRef.current >= duration) {
@@ -361,15 +380,26 @@ export default function WeddingExperience() {
           if (current === "opening") setPhaseNow("butterfly");
           else if (current === "butterfly") setPhaseNow("doves");
           else if (current === "doves") { peacockCallElapsedRef.current = 16500; setPageNow(0); setPhaseNow("story"); }
-          else if (pageRef.current < pageNames.length - 1) setPageNow(pageRef.current + 1);
-          else { setPhaseNow("finished"); if (barRef.current) barRef.current.style.transform = "scaleX(1)"; }
+          else if (walkingIndex < pageNames.length - 1) {
+            // The new landscape has arrived. The peacock now starts walking
+            // into that section from the left, with no extra transition wait.
+            walkingPageRef.current = walkingIndex + 1;
+            setWalkingPage(walkingIndex + 1);
+            if (pageRef.current !== walkingIndex + 1) {
+              pageRef.current = walkingIndex + 1;
+              setPage(walkingIndex + 1);
+            }
+            outgoingPageRef.current = null;
+            setOutgoingPage(null);
+            if (barRef.current) barRef.current.style.transform = "scaleX(0)";
+          } else { setPhaseNow("finished"); if (barRef.current) barRef.current.style.transform = "scaleX(1)"; }
         }
       }
       frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [setPageNow, setPhaseNow]);
+  }, [setPageNow, setPhaseNow, reducedMotion]);
 
   const start = useCallback((event?: ReactMouseEvent<HTMLElement>) => {
     if (phaseRef.current !== "cover") return;
@@ -493,7 +523,7 @@ export default function WeddingExperience() {
       {outgoingPage !== null && phase === "story" && <div className="story-outgoing story-outgoing--journey-out" aria-hidden="true"><div className="story-scene story-scene--departing" key={`out-${outgoingPage}`}>{renderScreen(outgoingPage)}</div></div>}
       {phase === "doves" && !reducedMotion && <Doves/>}
       <AmbientButterflies/>
-      <PeacockCompanion paused={paused} visible={(phase === "story" || phase === "finished") && !reducedMotion} reducedMotion={reducedMotion} page={page}/>
+      <PeacockCompanion paused={paused} visible={(phase === "story" || phase === "finished") && !reducedMotion} reducedMotion={reducedMotion} page={walkingPage}/>
 
       {(phase !== "cover") && <div className="player-top">
         <div className="player-brand"><Monogram small/><span>KABIN CEREMONY</span></div>
